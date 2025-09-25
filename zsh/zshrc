@@ -1,0 +1,290 @@
+#!/usr/bin/env zsh
+
+# ========================================
+# ZINIT INITIALIZATION
+# ========================================
+
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+# Download Zinit if not present
+if [[ ! -d "$ZINIT_HOME" ]]; then
+   mkdir -p "$(dirname $ZINIT_HOME)"
+   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+# Load zinit
+source "${ZINIT_HOME}/zinit.zsh"
+
+# ========================================
+# ZSH PLUGINS
+# ========================================
+
+# Core functionality plugins
+zinit wait lucid for \
+    atinit"zicompinit; zicdreplay" \
+        zdharma-continuum/fast-syntax-highlighting \
+    atload"!_zsh_autosuggest_start" \
+        zsh-users/zsh-autosuggestions \
+    blockf atpull'zinit creinstall -q .' \
+        zsh-users/zsh-completions
+
+# Advanced plugins
+zinit wait lucid for \
+        Aloxaf/fzf-tab
+
+# ========================================
+# OH-MY-ZSH SNIPPETS
+# ========================================
+
+zinit wait lucid for \
+    OMZP::git \
+    OMZP::sudo \
+    OMZP::archlinux \
+    OMZP::command-not-found \
+    OMZP::common-aliases \
+    OMZP::dotnet \
+    OMZP::cp \
+    OMZP::gh \
+    OMZP::git-commit \
+    OMZP::github \
+    OMZP::npm \
+    OMZP::vscode
+
+# ========================================
+# HISTORY CONFIGURATION
+# ========================================
+
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE="${HOME}/.config/zsh/zsh_history"
+
+# History options
+setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire a duplicate event first when trimming history
+setopt HIST_FIND_NO_DUPS         # Do not display a previously found event
+setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event is a duplicate
+setopt HIST_IGNORE_DUPS          # Do not record an event that was just recorded again
+setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space
+setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file
+setopt HIST_VERIFY               # Do not execute immediately upon history expansion
+setopt SHARE_HISTORY             # Share history between all sessions
+setopt APPEND_HISTORY            # Append history to the history file (no overwriting)
+
+# ========================================
+# ZSH OPTIONS & BEHAVIOR
+# ========================================
+
+setopt AUTO_CD                   # Auto change to a directory without typing cd
+setopt AUTO_PUSHD                # Push the old directory onto the stack on cd
+setopt PUSHD_IGNORE_DUPS         # Do not store duplicates in the stack
+setopt PUSHD_SILENT              # Do not print the directory stack after pushd or popd
+setopt CORRECT                   # Spelling correction
+setopt CDABLE_VARS               # Change directory to a path stored in a variable
+setopt EXTENDED_GLOB             # Use extended globbing syntax
+
+# ========================================
+# KEY BINDINGS
+# ========================================
+
+bindkey -e                       # Emacs key bindings
+bindkey '^p' history-search-backward
+bindkey '^n' history-search-forward
+bindkey '^[w' kill-region
+bindkey '^r' history-incremental-search-backward
+
+# ========================================
+# COMPLETION SYSTEM
+# ========================================
+
+# Completion styling
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # Case insensitive matching
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu select
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*:warnings' format 'No matches for: %d'
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${HOME}/.zcompcache"
+
+# fzf-tab configuration
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --color=always --level=2 $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --tree --color=always --level=2 $realpath'
+zstyle ':fzf-tab:*' switch-group ',' '.'
+
+# ========================================
+# ENVIRONMENT VARIABLES
+# ========================================
+
+# Editor
+export EDITOR="code"
+export VISUAL="$EDITOR"
+
+# FZF Configuration
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+
+# FZF Options
+show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always --level=2 {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
+export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview' --height 60% --border --layout=reverse"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always --level=2 {} | head -200' --height 60% --border --layout=reverse"
+export FZF_DEFAULT_OPTS="--height 60% --layout=reverse --border --inline-info --color=fg:#908caa,bg:#191724,hl:#ebbcba --color=fg+:#e0def4,bg+:#26233a,hl+:#ebbcba --color=border:#403d52,header:#31748f,gutter:#191724 --color=spinner:#f6c177,info:#9ccfd8,separator:#403d52 --color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
+
+# PATH Configuration
+typeset -U path
+path=(
+    "$HOME/.cargo/bin"
+    "$HOME/.spicetify"
+    "$HOME/go/bin"
+    "$HOME/.dotnet/bin"
+    "$HOME/.local/bin"
+    $path
+)
+
+# ========================================
+# ALIASES
+# ========================================
+
+# Core utilities
+alias ls='eza --color=always --git --icons=always --group-directories-first'
+alias ll='eza -la --color=always --git --icons=always --group-directories-first'
+alias la='eza -la --color=always --git --icons=always --group-directories-first'
+alias lt='eza --tree --color=always --icons=always --group-directories-first'
+alias vim='nvim'
+alias vi='nvim'
+alias c='clear'
+alias cd='z'
+
+# Enhanced tools
+alias grep='batgrep'
+alias find='fd'
+alias cat='bat --paging=never'
+alias less='bat'
+alias rm='rip'
+alias del='rip'
+alias cp='fcp'
+alias tree='tre'
+alias man='batman'
+alias top='btop'
+alias df='duf'
+alias du='dust'
+
+# FZF with preview
+alias fzf='fzf --preview="bat --color=always --style=numbers --line-range=:500 {}" --height 60% --border --layout=reverse'
+
+# Git shortcuts (enhance OMZ git plugin)
+alias gst='git status --short --branch'
+alias glog='git log --oneline --graph --decorate --all'
+alias gdiff='git diff --color-words'
+
+# Help formatting
+alias -g -- -h='-h 2>&1 | bat --language=help --style=plain'
+alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
+
+# Directory shortcuts
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# ========================================
+# FUNCTIONS
+# ========================================
+
+# Enhanced fzf completion
+_fzf_compgen_path() {
+    fd --hidden --follow --exclude ".git" . "$1"
+}
+
+_fzf_compgen_dir() {
+    fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
+_fzf_comprun() {
+    local command=$1
+    shift
+
+    case "$command" in
+        cd)           fzf --preview 'eza --tree --color=always --level=2 {} | head -200' "$@" ;;
+        export|unset) fzf --preview "eval 'echo \${}'" "$@" ;;
+        ssh)          fzf --preview 'dig {}' "$@" ;;
+        *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;
+    esac
+}
+
+# Tre with aliases
+tre() {
+    command tre "$@" -e && source "/tmp/tre_aliases_$USER" 2>/dev/null
+}
+
+# Quick directory creation and navigation
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Better which command
+which() {
+    (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot "$@"
+}
+
+# Extract function for various archive formats
+extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# ========================================
+# EXTERNAL INTEGRATIONS
+# ========================================
+
+# FZF integration
+if command -v fzf >/dev/null 2>&1; then
+    source <(fzf --zsh)
+fi
+
+# Zoxide integration (better cd)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+# thefuck integration
+if command -v thefuck >/dev/null 2>&1; then
+    eval $(thefuck --alias)
+    eval $(thefuck --alias fk)
+fi
+
+# fzf-git integration
+[[ -f "$HOME/.config/zsh/fzf-git.sh" ]] && source "$HOME/.config/zsh/fzf-git.sh"
+
+# ========================================
+# PROMPT INITIALIZATION
+# ========================================
+
+if [[ -f "$HOME/.config/ohmyposh/zen.toml" ]]; then
+    eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/zen.toml)"
+fi
+
+# ========================================
+# PERFORMANCE OPTIMIZATION
+# ========================================
+
+# Compile zshrc for faster loading
+ZSHRC_PATH="$HOME/.config/zsh/.zshrc"
+if [[ "$ZSHRC_PATH" -nt "$ZSHRC_PATH.zwc" ]] || [[ ! -s "$ZSHRC_PATH.zwc" ]]; then
+    zcompile "$ZSHRC_PATH"
+fi
