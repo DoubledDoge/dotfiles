@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+# Source .bashrc if it exists
+if [[ -f ~/.config/bash/.bashrc && $- == *i* ]]; then
+    source ~/.config/bash/.bashrc
+fi
+
+# ========================================
+# LOGIN-SPECIFIC ENVIRONMENT VARIABLES
+# ========================================
+
+#.bashrc
+export BASH_ENV="$HOME/.config/bash/bashrc"
+[[ -f "$BASH_ENV" ]] && . "$BASH_ENV"
+
+# XDG Base Directory Specification
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_BASH_CONFIG="$HOME/.config/bash"
+
+# Ensure directories exist
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$XDG_BASH_CONFIG"
+
+# ========================================
+# APPLICATION-SPECIFIC CONFIGURATIONS
+# ========================================
+
+# .NET
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export PATH="$PATH:$HOME/.dotnet/tools"
+
+# Rust
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+
+# Go
+export GOPATH="$HOME/go"
+export GOBIN="$GOPATH/bin"
+
+# Node.js
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
+
+# Python
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc.py"
+export PYTHONHISTFILE="$XDG_STATE_HOME/python/history"
+
+# Docker
+export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+
+# Less
+export LESSHISTFILE="$XDG_STATE_HOME/less/history"
+
+# Wget
+export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
+
+# GPG
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+
+# ========================================
+# DISPLAY & LOCALE
+# ========================================
+
+# Set locale if not already set
+if [ -z "$LANG" ]; then
+    export LANG="en_US.UTF-8"
+    export LC_ALL="en_US.UTF-8"
+fi
+
+# Display settings for X11/Wayland
+if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+    # GUI-specific environment variables can go here
+    export QT_QPA_PLATFORMTHEME="qt5ct"
+    export QT_AUTO_SCREEN_SCALE_FACTOR=0
+fi
+
+# ========================================
+# PERFORMANCE OPTIMIZATIONS
+# ========================================
+
+# Reduce systemd journal verbosity
+export SYSTEMD_PAGER=""
+
+# Speed up some operations
+export DEBIAN_FRONTEND=noninteractive
+
+# ========================================
+# CONDITIONAL LOADING
+# ========================================
+
+# Load machine-specific profile if it exists
+[ -f "$XDG_BASH_CONFIG/.bash_profile.local" ] && source "$XDG_BASH_CONFIG/.bash_profile.local"
+
