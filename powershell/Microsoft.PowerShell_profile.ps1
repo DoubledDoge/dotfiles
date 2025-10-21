@@ -32,7 +32,7 @@ foreach ($Module in $RequiredModules) {
 
 # History file location
 if ($IsWindows) {
-    $HistoryFilePath = "$env:APPDATA\PowerShell\history.txt"
+    $HistoryFilePath = "$env:APPDATA\local\PowerShell\history.txt"
 } else {
     $HistoryFilePath = "$env:HOME/.config/powershell/history.txt"
 }
@@ -271,7 +271,7 @@ if (Get-Module -ListAvailable -Name posh-git) {
 
 # Oh-My-Posh initialization
 if ($IsWindows) {
-    $OhMyPoshConfig = "$env:APPDATA\ohmyposh\zen.toml"
+    $OhMyPoshConfig = "$env:APPDATA\local\oh-my-posh\zen.toml"
 } else {
     $OhMyPoshConfig = "$env:HOME/.config/ohmyposh/zen.toml"
 }
