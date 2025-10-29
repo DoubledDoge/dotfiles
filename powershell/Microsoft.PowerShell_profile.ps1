@@ -2,122 +2,145 @@
 # POWERSHELL PROFILE INITIALIZATION
 # ========================================
 
-$ProfileVersion = "1.0"
+$ProfileVersion = "3.0"
 $PSMinimumVersion = 7
 
+# Suppress progress bars
+$ProgressPreference = 'SilentlyContinue'
+
+# Import PSReadLine
+Import-Module PSReadLine -Force -ErrorAction Stop
+
 # ========================================
-# MODULE MANAGEMENT & INITIALIZATION
+# COMMAND CACHE
 # ========================================
 
-Import-Module PSReadLine -ErrorAction SilentlyContinue
-
-$RequiredModules = @(
-    'PSFzf',           # FZF integration
-    'ZLocation',       # Zoxide equivalent
-    'posh-git',        # Git integration
-    'CompletionPredictor'  # Enhanced completions
-)
-
-foreach ($Module in $RequiredModules) {
-    if (-not (Get-Module -ListAvailable -Name $Module)) {
-        Write-Host "Installing module: $Module" -ForegroundColor Yellow
-        Install-Module -Name $Module -Repository PSGallery -Force -Scope CurrentUser
+$script:CommandCache = @{}
+function Test-CommandExists {
+    param([string]$Command)
+    if (-not $script:CommandCache.ContainsKey($Command)) {
+        $script:CommandCache[$Command] = [bool](Get-Command $Command -ErrorAction SilentlyContinue)
     }
-    Import-Module $Module -ErrorAction SilentlyContinue
+    return $script:CommandCache[$Command]
 }
 
 # ========================================
-# HISTORY CONFIGURATION
+# PSREADLINE CONFIGURATION
 # ========================================
 
-# History file location
-if ($IsWindows) {
-    $HistoryFilePath = "$env:APPDATA\PowerShell\history.txt"
+# Core PSReadLine options
+Set-PSReadLineOption -EditMode Windows `
+                     -HistorySaveStyle SaveIncrementally `
+                     -HistorySearchCursorMovesToEnd `
+                     -MaximumHistoryCount 10000 `
+                     -MaximumKillRingCount 50 `
+                     -ShowToolTips `
+                     -PredictionSource History `
+                     -PredictionViewStyle ListView `
+                     -BellStyle None
+
+# History configuration
+$HistoryFilePath = if ($IsWindows) {
+    "$env:APPDATA\PowerShell\history.txt"
 } else {
-    $HistoryFilePath = "$env:HOME/.config/powershell/history.txt"
+    "$env:HOME/.config/powershell/history.txt"
+}
+
+$HistoryDir = Split-Path $HistoryFilePath -Parent
+if (-not (Test-Path $HistoryDir)) {
+    New-Item -ItemType Directory -Force -Path $HistoryDir | Out-Null
 }
 
 $env:PSHistoryPath = $HistoryFilePath
-
-# PSReadLine history settings
-$PSReadLineOptions = @{
-    HistorySaveStyle              = 'SaveIncrementally'
-    HistorySearchCursorMovesToEnd = $true
-    MaximumHistoryCount           = 10000
-    MaximumKillRingCount          = 50
-}
-Set-PSReadLineOption @PSReadLineOptions
+Set-PSReadLineOption -HistorySavePath $HistoryFilePath
 
 # ========================================
 # KEY BINDINGS
 # ========================================
 
-# Emacs-style key bindings
-Set-PSReadLineOption -EditMode Emacs
-
 # History search
-Set-PSReadLineKeyHandler -Key 'UpArrow' -Function 'HistorySearchBackward'
-Set-PSReadLineKeyHandler -Key 'DownArrow' -Function 'HistorySearchForward'
-Set-PSReadLineKeyHandler -Key 'Ctrl+r' -Function 'ReverseSearchHistory'
+Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Set-PSReadLineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 
-# Smart word completion
-Set-PSReadLineKeyHandler -Key 'Tab' -Function 'MenuComplete'
-Set-PSReadLineKeyHandler -Key 'Ctrl+Spacebar' -Function 'TabCompleteNext'
+# Tab completion
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadLineKeyHandler -Key Shift+Tab -Function TabCompletePrevious
+Set-PSReadLineKeyHandler -Key Ctrl+Spacebar -Function TabCompleteNext
 
-# Directory navigation
-Set-PSReadLineKeyHandler -Key 'Ctrl+d' -Function 'DeleteCharOrExit'
+# Navigation
+Set-PSReadLineKeyHandler -Key Ctrl+d -Function DeleteCharOrExit
+Set-PSReadLineKeyHandler -Key Ctrl+LeftArrow -Function BackwardWord
+Set-PSReadLineKeyHandler -Key Ctrl+RightArrow -Function ForwardWord
 
 # ========================================
-# COMPLETION SYSTEM
+# MODULE MANAGEMENT 
 # ========================================
 
-# Tab completion options
-$PSReadLineOptions = @{
-    CompletionQueryItems = 100
-    ShowToolTips         = $true
-    ExtraPromptLineCount = 0
+function Import-ModuleAsync {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ModuleName,
+        [bool]$Required = $true
+    )
+    
+    if (-not (Get-Module -ListAvailable -Name $ModuleName)) {
+        if ($Required) {
+            Write-Host "Module $ModuleName not found. Install with: Install-Module $ModuleName -Scope CurrentUser" -ForegroundColor Yellow
+        }
+        return
+    }
+    
+    # Defer non-critical imports for faster startup
+    Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Action {
+        Import-Module $using:ModuleName -ErrorAction SilentlyContinue
+    } | Out-Null
 }
-Set-PSReadLineOption @PSReadLineOptions
 
-# Syntax highlighting colors
-Set-PSReadLineOption -Colors @{
-    "Command"            = "#e0def4"
-    "Parameter"          = "#908caa"
-    "Operator"           = "#ebbcba"
-    "Variable"           = "#31748f"
-    "String"             = "#9ccfd8"
-    "Number"             = "#f6c177"
-    "Type"               = "#c4a7e7"
-    "Comment"            = "#6e6a86"
-    "Keyword"            = "#c4a7e7"
-    "ContinuationPrompt" = "#31748f"
+# Critical modules
+$CriticalModules = @('Terminal-Icons')
+
+foreach ($Module in $CriticalModules) {
+    if (Get-Module -ListAvailable -Name $Module) {
+        Import-Module $Module -ErrorAction SilentlyContinue
+    }
+}
+
+# Required modules (lazy loaded)
+$RequiredModules = @(
+    'PSFzf',
+    'posh-git'
+)
+
+# Optional modules
+$OptionalModules = @(
+    'CompletionPredictor',
+    'Microsoft.WinGet.CommandNotFound',
+    'PSScriptAnalyzer'
+)
+
+foreach ($Module in $RequiredModules) {
+    Import-ModuleAsync -ModuleName $Module -Required $true
+}
+
+foreach ($Module in $OptionalModules) {
+    Import-ModuleAsync -ModuleName $Module -Required $false
 }
 
 # ========================================
 # ENVIRONMENT VARIABLES
 # ========================================
 
-# Editor configuration
 $env:EDITOR = 'code'
 $env:VISUAL = $env:EDITOR
-
-# FZF Configuration
-$env:FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git"
-$env:FZF_CTRL_T_COMMAND = $env:FZF_DEFAULT_COMMAND
-$env:FZF_ALT_C_COMMAND = "fd --type d --hidden --follow --exclude .git"
-
-# FZF Options
-$show_file_or_dir_preview = 'if (Test-Path -PathType Container $args) { eza --tree --color=always --level=2 $args | head -200 } else { bat -n --color=always --line-range :500 $args }'
-$env:FZF_CTRL_T_OPTS = "--preview '$show_file_or_dir_preview' --height 60% --border --layout=reverse"
-$env:FZF_ALT_C_OPTS = "--preview 'eza --tree --color=always --level=2 {0} | head -200' --height 60% --border --layout=reverse"
-$env:FZF_DEFAULT_OPTS = "--height 60% --layout=reverse --border --inline-info --color=fg:#908caa,bg:#191724,hl:#ebbcba --color=fg+:#e0def4,bg+:#26233a,hl+:#ebbcba --color=border:#403d52,header:#31748f"
+$env:FZF_DEFAULT_OPTS = "--height 60% --layout=reverse --border --inline-info --color=fg:#908caa,bg:#191724,hl:#ebbcba --color=fg+:#e0def4,bg+:#26233a,hl+:#ebbcba --color=border:#403d52,header:#31748f,pointer:#ebbcba,marker:#ebbcba,prompt:#31748f"
 
 # ========================================
 # PATH CONFIGURATION
 # ========================================
 
-if ($IsWindows) {
-    $PathItems = @(
+$PathItems = if ($IsWindows) {
+    @(
         "$env:USERPROFILE\.cargo\bin",
         "$env:USERPROFILE\.spicetify",
         "$env:USERPROFILE\go\bin",
@@ -125,7 +148,7 @@ if ($IsWindows) {
         "$env:USERPROFILE\.local\bin"
     )
 } else {
-    $PathItems = @(
+    @(
         "$env:HOME/.cargo/bin",
         "$env:HOME/.spicetify",
         "$env:HOME/go/bin",
@@ -134,153 +157,186 @@ if ($IsWindows) {
     )
 }
 
+# Deduplicate paths with proper case handling
+$CurrentPath = [System.Collections.Generic.HashSet[string]]::new(
+    [StringComparer]::OrdinalIgnoreCase
+)
+$env:PATH.Split([IO.Path]::PathSeparator) | ForEach-Object { $CurrentPath.Add($_) | Out-Null }
+
 foreach ($PathItem in $PathItems) {
-    if ($PathItem -notin $env:PATH.Split([IO.Path]::PathSeparator)) {
+    if ((Test-Path $PathItem) -and -not $CurrentPath.Contains($PathItem)) {
         $env:PATH = "$PathItem$([IO.Path]::PathSeparator)$env:PATH"
     }
 }
 
 # ========================================
-# ALIASES
+# ALIASES & FUNCTIONS
 # ========================================
 
-function ls { eza --color=always --git --icons=always --group-directories-first @args }
-function ll { eza -la --color=always --git --icons=always --group-directories-first @args }
-function la { eza -la --color=always --git --icons=always --group-directories-first @args }
-function lt { eza --tree --color=always --icons=always --group-directories-first @args }
-function vim { nvim @args }
-function vi { nvim @args }
 function c { Clear-Host }
-function cd { z @args }
-function grep { batgrep @args }
-function find { fd @args }
-function cat { bat --paging=never @args }
-function less { bat @args }
-function rm { rip @args }
-function del { rip @args }
-function cp { fcp @args }
-function tree { tre @args }
-function man { batman @args }
-function top { btop @args }
-function df { duf @args }
-function du { dust @args }
-
-# FZF with preview
-function fzf {
-    & fzf --preview="bat --color=always --style=numbers --line-range=:500 {}" --height 60% --border --layout=reverse @args
-}
 
 # Git shortcuts
 function gst { git status --short --branch @args }
 function glog { git log --oneline --graph --decorate --all @args }
 function gdiff { git diff --color-words @args }
 function ga { git add @args }
+function gaa { git add --all @args }
 function gc { git commit @args }
+function gcm { 
+    param([Parameter(Mandatory)][string]$Message)
+    git commit -m $Message 
+}
 function gp { git push @args }
 function gl { git pull @args }
+function gco { git checkout @args }
+function gb { git branch @args }
+function gbd { git branch -d @args }
+function gf { git fetch @args }
+function gm { git merge @args }
+function gr { git rebase @args }
+function gsta { git stash @args }
+function gstp { git stash pop @args }
 
 # Directory shortcuts
 function .. { Set-Location '..' }
 function ... { Set-Location '../..' }
 function .... { Set-Location '../../..' }
 
-# ========================================
-# FUNCTIONS
-# ========================================
-
-# Quick directory creation and navigation
+# Utility functions
 function mkcd {
-    param([string]$Path)
-    New-Item -ItemType Directory -Force -Path $Path | Out-Null
-    Set-Location $Path
+    param([Parameter(Mandatory)][string]$Path)
+    try {
+        New-Item -ItemType Directory -Force -Path $Path -ErrorAction Stop | Out-Null
+        Set-Location $Path
+    } catch {
+        Write-Error "Failed to create or navigate to directory: $_"
+    }
 }
 
-# Extract function for various archive formats
-function extract {
-    param([string]$FilePath)
+function touch { 
+    param([Parameter(Mandatory)][string]$Path)
+    try {
+        if (Test-Path $Path) {
+            (Get-Item $Path).LastWriteTime = Get-Date
+        } else {
+            New-Item -ItemType File -Path $Path -ErrorAction Stop | Out-Null
+        }
+    } catch {
+        Write-Error "Failed to touch file: $_"
+    }
+}
 
+function extract {
+    param([Parameter(Mandatory)][string]$FilePath)
+    
     if (-not (Test-Path $FilePath)) {
         Write-Error "'$FilePath' is not a valid file"
         return
     }
-
-    switch -Regex ($FilePath) {
-        '\.tar\.bz2$'  { tar xjf $FilePath }
-        '\.tar\.gz$'   { tar xzf $FilePath }
-        '\.tar\.xz$'   { tar xJf $FilePath }
-        '\.bz2$'       { bzip2 -d $FilePath }
-        '\.rar$'       { unrar x $FilePath }
-        '\.gz$'        { gzip -d $FilePath }
-        '\.tar$'       { tar xf $FilePath }
-        '\.tbz2$'      { tar xjf $FilePath }
-        '\.tgz$'       { tar xzf $FilePath }
-        '\.zip$'       { Expand-Archive -Path $FilePath -DestinationPath . }
-        '\.7z$'        { 7z x $FilePath }
-        default        { Write-Error "'$FilePath' cannot be extracted via extract()" }
+    
+    try {
+        switch -Regex ($FilePath) {
+            '\.tar\.bz2$'  { tar xjf $FilePath }
+            '\.tar\.gz$'   { tar xzf $FilePath }
+            '\.tar\.xz$'   { tar xJf $FilePath }
+            '\.bz2$'       { bzip2 -d $FilePath }
+            '\.rar$'       { unrar x $FilePath }
+            '\.gz$'        { gzip -d $FilePath }
+            '\.tar$'       { tar xf $FilePath }
+            '\.tbz2$'      { tar xjf $FilePath }
+            '\.tgz$'       { tar xzf $FilePath }
+            '\.zip$'       { Expand-Archive -Path $FilePath -DestinationPath . }
+            '\.7z$'        { 7z x $FilePath }
+            default        { Write-Error "'$FilePath' cannot be extracted via extract()" }
+        }
+    } catch {
+        Write-Error "Failed to extract file: $_"
     }
 }
 
-# Tre with aliases
-function tre {
-    & command tre @args -e
-    if ($IsWindows) {
-        $TreAliasPath = "$env:TEMP\tre_aliases_$env:USERNAME"
-    } else {
-        $TreAliasPath = "/tmp/tre_aliases_$env:USERNAME"
-    }
-    if (Test-Path $TreAliasPath) {
-        & $TreAliasPath
-    }
-}
-
-# Enhanced which command
 function which {
-    param([string]$Command)
-    Get-Command $Command -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+    param([Parameter(Mandatory)][string]$Command)
+    try {
+        $cmd = Get-Command $Command -ErrorAction Stop
+        $cmd | Select-Object -ExpandProperty Source
+    } catch {
+        Write-Error "Command '$Command' not found"
+    }
+}
+
+function Get-DiskUsage {
+    Get-ChildItem -Force | 
+        ForEach-Object { 
+            [PSCustomObject]@{
+                Name = $_.Name
+                Size = if ($_.PSIsContainer) {
+                    (Get-ChildItem $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | 
+                     Measure-Object -Property Length -Sum).Sum
+                } else { $_.Length }
+            }
+        } | 
+        Sort-Object Size -Descending | 
+        Select-Object Name, @{N='Size';E={"{0:N2} MB" -f ($_.Size / 1MB)}}
+}
+
+function reload { 
+    . $PROFILE 
+    Write-Host "Profile reloaded!" -ForegroundColor Green
+}
+
+function Update-Profile {
+    param([string]$ProfileUrl = "https://raw.githubusercontent.com/DoubledDoge/dotfiles/main/powershell/Microsoft.PowerShell_profile.ps1")
+    
+    try {
+        Write-Host "Downloading profile from $ProfileUrl..." -ForegroundColor Yellow
+        $WebProfile = Invoke-RestMethod -Uri $ProfileUrl -ErrorAction Stop
+        $WebProfile | Out-File -FilePath $PROFILE -Encoding UTF8 -Force
+        Write-Host "Profile updated successfully! Run 'reload' to apply changes." -ForegroundColor Green
+    } catch {
+        Write-Error "Failed to update profile: $_"
+    }
 }
 
 # ========================================
 # EXTERNAL INTEGRATIONS
 # ========================================
 
-# PSFzf integration
-if (Get-Module -ListAvailable -Name PSFzf) {
-    Import-Module PSFzf -ErrorAction SilentlyContinue
-    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
-}
+# PSFzf
+Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Action {
+    if (Get-Module -Name PSFzf) {
+        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+    }
+} | Out-Null
 
 # Zoxide integration
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+if (Test-CommandExists 'zoxide') {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
 
-# thefuck integration
-if (Get-Command thefuck -ErrorAction SilentlyContinue) {
-    Invoke-Expression "$(thefuck --alias)"
-    Invoke-Expression "$(thefuck --alias fk)"
-}
-
-# posh-git integration for Git status
-if (Get-Module -ListAvailable -Name posh-git) {
-    Import-Module posh-git -ErrorAction SilentlyContinue
+# Dotnet completion
+if (Test-CommandExists 'dotnet') {
+    Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
+        param($wordToComplete, $commandAst, $cursorPosition)
+        dotnet complete --position $cursorPosition "$commandAst" | ForEach-Object {
+            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+        }
+    }
 }
 
 # ========================================
-# PROMPT INITIALIZATION
+# PROMPT (OH-MY-POSH)
 # ========================================
 
-# Oh-My-Posh initialization
-if ($IsWindows) {
-    $OhMyPoshConfig = "$env:APPDATA\oh-my-posh\zen.toml"
+$OhMyPoshConfig = if ($IsWindows) {
+    "$env:APPDATA\oh-my-posh\zen.toml"
 } else {
-    $OhMyPoshConfig = "$env:HOME/.config/ohmyposh/zen.toml"
+    "$env:HOME/.config/ohmyposh/zen.toml"
 }
 
-if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+if (Test-CommandExists 'oh-my-posh') {
     if (Test-Path $OhMyPoshConfig) {
-        & oh-my-posh init powershell --config $OhMyPoshConfig | Out-String | Invoke-Expression
+        & oh-my-posh init powershell --config $OhMyPoshConfig | Invoke-Expression
     } else {
-        Write-Warning "Oh-My-Posh config not found at: $OhMyPoshConfig"
-        & oh-my-posh init powershell | Out-String | Invoke-Expression
+        & oh-my-posh init powershell | Invoke-Expression
     }
 }
