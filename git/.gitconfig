@@ -1,0 +1,103 @@
+[user]
+	name = DoubledDoge
+	email = dbritz22@proton.me
+	signingkey = 
+
+[core]
+	compression = 9
+	whitespace = error
+	preloadindex = true
+	pager = delta
+	excludesfile = ~/.gitignore_global
+
+[advice]
+	addEmptyPathspec = false
+	pushNonFastForward = false
+	statusHints = false
+
+[init]
+	defaultBranch = main
+
+[status]
+	branch = true
+	showStash = true
+
+[fetch]
+	prune = true
+
+[diff]
+	context = 3
+	renames = copies
+	interHunkContext = 10
+
+[color "diff"]
+	meta = black bold
+	frag = magenta
+	context = white
+	whitespace = yellow reverse
+	old = red
+	new = green
+
+[push]
+	autoSetupRemote = true
+	default = current
+	followTags = true
+
+[pull]
+	default = current
+	rebase = true
+
+[rebase]
+	autoStash = true
+	missingCommitsCheck = warn
+
+[rerere]
+	enabled = true
+
+[log]
+	abbrevCommit = true
+	graphColors = blue,yellow,cyan,magenta,green,red
+
+[color "decorate"]
+	HEAD = red
+	branch = blue
+	tag = yellow
+	remoteBranch = magenta
+
+[color "branch"]
+	current = magenta
+	local = default
+	remote = yellow
+	upstream = green
+	plain = blue
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = -taggerdate
+
+[interactive]
+	diffFilter = delta --color-only
+	singlekey = true
+
+[delta]
+	navigate = true
+	dark = true
+	side-by-side = true
+	line-numbers = true
+
+[merge]
+	conflictStyle = zdiff3
+
+[commit]
+	template = ~/.gitmessage
+	gpgSign = true
+
+[credential "https://github.com"]
+	helper = 
+	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
