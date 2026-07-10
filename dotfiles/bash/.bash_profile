@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 
 # Source .bashrc if it exists
-if [[ -f ~/.config/bash/.bashrc && $- == *i* ]]; then
-    source ~/.config/bash/.bashrc
+if [[ -f ~/.bashrc && $- == *i* ]]; then
+    source ~/.bashrc
 fi
 
 # ========================================
 # LOGIN-SPECIFIC ENVIRONMENT VARIABLES
 # ========================================
-
-#.bashrc
-export BASH_ENV="$HOME/.config/bash/bashrc"
-[[ -f "$BASH_ENV" ]] && . "$BASH_ENV"
 
 # XDG Base Directory Specification
 export XDG_CONFIG_HOME="$HOME/.config"

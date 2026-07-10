@@ -1,0 +1,14 @@
+.directory
+.Trash-*
+nohup.out
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+node_modules/
+dist/
+build/
+*.log

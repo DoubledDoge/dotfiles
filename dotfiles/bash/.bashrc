@@ -14,41 +14,38 @@ esac
 # BASH OPTIONS & BEHAVIOR
 # ========================================
 
-# History settings
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+mkdir -p "$XDG_CONFIG_HOME/bash"
+
 HISTSIZE=10000
 HISTFILESIZE=20000
-HISTFILE="${HOME}/.config/bash/bash_history"
+HISTFILE="${XDG_CONFIG_HOME}/bash/bash_history"
 
-# History control
-HISTCONTROL=ignoreboth:erasedups  # Ignore duplicates and lines starting with space
+HISTCONTROL=ignoreboth:erasedups
 HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help:clear:history"
 HISTTIMEFORMAT='%F %T '
 
-# Bash options
-shopt -s histappend          # Append to history file, don't overwrite
-shopt -s checkwinsize        # Check window size after commands
-shopt -s expand_aliases      # Expand aliases
-shopt -s cmdhist            # Save multi-line commands in history as single line
-shopt -s dotglob            # Include dotfiles in pathname expansion
-shopt -s extglob            # Enable extended globbing
-shopt -s globstar           # Enable ** globbing
-shopt -s nocaseglob         # Case-insensitive globbing
-shopt -s cdspell            # Correct minor errors in cd commands
-shopt -s dirspell           # Correct minor errors in directory spelling
-shopt -s autocd             # Auto cd when typing directory name
+shopt -s histappend    
+shopt -s checkwinsize
+shopt -s expand_aliases
+shopt -s cmdhist
+shopt -s dotglob
+shopt -s extglob
+shopt -s globstar
+shopt -s nocaseglob
+shopt -s cdspell
+shopt -s dirspell
+shopt -s autocd
 
-# Make less more friendly for non-text input files
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # ========================================
 # ENVIRONMENT VARIABLES
 # ========================================
 
-# Editor
-export EDITOR="code"
+export EDITOR="$(command -v micro || echo nano)"
 export VISUAL="$EDITOR"
 
-# PATH Configuration
 add_to_path() {
     case ":$PATH:" in
         *":$1:"*) ;;
@@ -63,18 +60,15 @@ add_to_path "$HOME/go/bin"
 add_to_path "$HOME/.spicetify"
 add_to_path "$HOME/.cargo/bin"
 
-# FZF Configuration
 export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
 
-# FZF Options with Rose Pine theme
 show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always --level=2 {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
 export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview' --height 60% --border --layout=reverse"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always --level=2 {} | head -200' --height 60% --border --layout=reverse"
 export FZF_DEFAULT_OPTS="--height 60% --layout=reverse --border --inline-info --color=fg:#908caa,bg:#191724,hl:#ebbcba --color=fg+:#e0def4,bg+:#26233a,hl+:#ebbcba --color=border:#403d52,header:#31748f,gutter:#191724 --color=spinner:#f6c177,info:#9ccfd8,separator:#403d52 --color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
 
-# Other environment variables
 export COLORTERM=truecolor
 export TERM=xterm-256color
 
@@ -82,9 +76,12 @@ export TERM=xterm-256color
 # PROMPT & THEME
 # ========================================
 
-# Oh-my-posh prompt
+# Track background jobs so the prompt can display the count
+_update_bg_jobs() { export BG_JOBS="$(jobs -r | wc -l | tr -d ' ')"; }
+PROMPT_COMMAND="_update_bg_jobs${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+
 if command -v oh-my-posh >/dev/null 2>&1; then
-    eval "$(oh-my-posh init bash --config $HOME/.config/ohmyposh/zen.toml)"
+    eval "$(oh-my-posh init bash --config $HOME/.config/ohmyposh/rosepine.omp.toml)"
 fi
 
 # ========================================
@@ -111,17 +108,20 @@ fi
 # ALIASES
 # ========================================
 
-# Core utilities
 alias ls='eza --color=always --git --icons=always --group-directories-first'
 alias ll='eza -la --color=always --git --icons=always --group-directories-first'
 alias la='eza -la --color=always --git --icons=always --group-directories-first'
 alias lt='eza --tree --color=always --icons=always --group-directories-first'
-alias vim='nvim'
-alias vi='nvim'
+alias nano='micro'
 alias c='clear'
-alias cd='z'
+alias upgrade='topgrade'
+alias ofetch='onefetch'
+alias lzg='lazygit'
+alias zj='zellij'
+alias bench='hyperfine'
+alias sr='sd'
+alias denv='direnv edit .'
 
-# Enhanced tools
 alias grep='batgrep'
 alias find='fd'
 alias cat='bat --paging=never'
@@ -135,10 +135,12 @@ alias top='btop'
 alias df='duf'
 alias du='dust'
 
-# FZF with preview
+alias s="kitten ssh"
+alias icat="kitten icat"
+alias clipboard="kitten clipboard"
+
 alias fzf='fzf --preview="bat --color=always --style=numbers --line-range=:500 {}" --height 60% --border --layout=reverse'
 
-# Git shortcuts
 alias gst='git status --short --branch'
 alias glog='git log --oneline --graph --decorate --all'
 alias gdiff='git diff --color-words'
@@ -154,14 +156,11 @@ alias ....='cd ../../..'
 alias ~='cd ~'
 alias -- -='cd -'
 
-# System shortcuts
 alias h='history'
 alias j='jobs -l'
 alias ports='netstat -tulanp'
 
-# Safety aliases
 alias mv='mv -i'
-alias rm='rm -I --preserve-root'
 
 # Help formatting
 alias help='help 2>&1 | bat --language=help --style=plain 2>/dev/null || help'
@@ -170,7 +169,6 @@ alias help='help 2>&1 | bat --language=help --style=plain 2>/dev/null || help'
 # FUNCTIONS
 # ========================================
 
-# Enhanced fzf functions
 _fzf_compgen_path() {
     fd --hidden --follow --exclude ".git" . "$1"
 }
@@ -179,17 +177,14 @@ _fzf_compgen_dir() {
     fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
-# Quick directory creation and navigation
 mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
-# Better which command
 which() {
     (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot "$@"
 }
 
-# Extract function for various archive formats
 extract() {
     if [ -f "$1" ]; then
         case "$1" in
@@ -211,18 +206,15 @@ extract() {
     fi
 }
 
-# Tre with aliases
 tre() {
     command tre "$@" -e && source "/tmp/tre_aliases_$USER" 2>/dev/null
 }
 
-# Weather function
 weather() {
     local city="${1:-Cape Town}"
     curl -s "wttr.in/${city}?format=3"
 }
 
-# System info function
 sysinfo() {
     echo "=== System Information ==="
     echo "Hostname: $(hostname)"
@@ -237,7 +229,6 @@ sysinfo() {
 # EXTERNAL INTEGRATIONS
 # ========================================
 
-# FZF integration
 if command -v fzf >/dev/null 2>&1; then
     if [ -f ~/.fzf.bash ]; then
         source ~/.fzf.bash
@@ -247,20 +238,34 @@ if command -v fzf >/dev/null 2>&1; then
     fi
 fi
 
-# Zoxide integration (better cd)
 if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init bash)"
+    alias cd='z'
 fi
 
-# thefuck integration
-if command -v thefuck >/dev/null 2>&1; then
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook bash)"
+fi
+
+if command -v yazi >/dev/null 2>&1; then
+    function y() {
+        local tmp
+        tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+    }
+fi
+
+if command -v thefuck >/dev/null 2>&1 && thefuck --version >/dev/null 2>&1; then
     eval $(thefuck --alias)
     eval $(thefuck --alias fk)
 fi
 
-# fzf-git integration
-if [ -f "$HOME/.config/bash/fzf-git.sh/fzf-git.sh" ]; then
-    source "$HOME/.config/bash/fzf-git.sh/fzf-git.sh"
+if [ -f "$HOME/.config/fzf-git/fzf-git.sh" ]; then
+    source "$HOME/.config/fzf-git/fzf-git.sh"
 fi
 
 # ========================================
@@ -309,5 +314,4 @@ fi
 # LOCAL CUSTOMIZATIONS
 # ========================================
 
-# Load local customizations if they exist
 [ -f "$HOME/.config/bash/.bashrc.local" ] && source "$HOME/.config/bash.bashrc.local"

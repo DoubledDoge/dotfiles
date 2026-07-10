@@ -1,26 +1,3 @@
-# The MIT License (MIT)
-#
-# Copyright (c) 2024 Junegunn Choi
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
-# shellcheck disable=SC2039
 [[ $0 = - ]] && return
 
 __fzf_git_color() {
@@ -154,7 +131,7 @@ if [[ $1 = --list ]]; then
   fi
 fi
 
-if [[ $- =~ i ]] || [[ $1 = --run ]]; then # ----------------------------------
+if [[ $- =~ i ]] || [[ $1 = --run ]]; then
 
 if [[ $__fzf_git_fzf ]]; then
   eval "$__fzf_git_fzf"
@@ -324,7 +301,7 @@ CTRL-G CTRL-E for Each ref (git for-each-ref)
 EOF
 }
 
-fi # --------------------------------------------------------------------------
+fi
 
 if [[ $1 = --run ]]; then
   shift
@@ -332,7 +309,7 @@ if [[ $1 = --run ]]; then
   shift
   eval "_fzf_git_$type" "$@"
 
-elif [[ $- =~ i ]]; then # ------------------------------------------------------
+elif [[ $- =~ i ]]; then
 if [[ -n "${BASH_VERSION:-}" ]]; then
   __fzf_git_init() {
     bind -m emacs-standard '"\er":  redraw-current-line'
@@ -382,4 +359,4 @@ elif [[ -n "${ZSH_VERSION:-}" ]]; then
 fi
 __fzf_git_init files branches tags remotes hashes stashes lreflogs each_ref worktrees '?list_bindings'
 
-fi # --------------------------------------------------------------------------
+fi

@@ -1,0 +1,332 @@
+---
+- name: Load OS-specific variables
+  include_vars: main.yml
+
+- name: Update Apt Cache (Debian/Ubuntu)
+  become: true
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_pkg_mgr == 'apt'
+
+- name: Install Common Packages
+  become: true
+  package:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Install Debian/Ubuntu Packages
+  become: true
+  apt:
+    name: "{{ debian_packages }}"
+    state: present
+  when: ansible_pkg_mgr == 'apt'
+
+- name: Install Arch Packages
+  become: true
+  pacman:
+    name: "{{ arch_packages }}"
+    state: present
+    update_cache: yes
+  when: ansible_pkg_mgr == 'pacman'
+
+- name: Install Fedora Packages
+  become: true
+  dnf:
+    name: "{{ fedora_packages }}"
+    state: present
+    update_cache: yes
+  when: ansible_pkg_mgr == 'dnf'
+
+# ========================================
+# BINARY NAME FIXUPS
+# ========================================
+# Debian/Ubuntu ship `bat` and `fd-find` under renamed binaries (`batcat`,
+# `fdfind`) to avoid clashes with unrelated packages of those names. These
+# symlinks are safe no-ops on distros where the rename doesn't happen.
+
+- name: Ensure ~/.local/bin exists
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Check for renamed batcat binary
+  stat:
+    path: /usr/bin/batcat
+  register: batcat_bin
+
+- name: Symlink batcat -> bat
+  file:
+    src: /usr/bin/batcat
+    dest: "{{ ansible_env.HOME }}/.local/bin/bat"
+    state: link
+  when: batcat_bin.stat.exists
+
+- name: Check for renamed fdfind binary
+  stat:
+    path: /usr/bin/fdfind
+  register: fdfind_bin
+
+- name: Symlink fdfind -> fd
+  file:
+    src: /usr/bin/fdfind
+    dest: "{{ ansible_env.HOME }}/.local/bin/fd"
+    state: link
+  when: fdfind_bin.stat.exists
+
+# ========================================
+# MANUAL INSTALLS
+# ========================================
+
+- name: Check if Oh-My-Posh is installed
+  stat:
+    path: /usr/local/bin/oh-my-posh
+  register: omp_bin
+
+- name: Install Oh-My-Posh
+  become: true
+  shell: curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin
+  when: not omp_bin.stat.exists
+
+- name: Check if rustup/cargo is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
+  register: cargo_bin
+
+- name: Install rustup (needed for cargo-only tools below)
+  shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+  when: not cargo_bin.stat.exists
+
+- name: Install cargo-only tools (eza, delta, rip, fcp, dust, tre, topgrade)
+  shell: "{{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.crate }}"
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.bin }}"
+  loop: "{{ cargo_packages }}"
+  loop_control:
+    label: "{{ item.crate }}"
+
+- name: Check if bat-extras is already installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/batman"
+  register: bat_extras_bin
+
+- name: Clone bat-extras
+  git:
+    repo: "{{ bat_extras_repo }}"
+    dest: /tmp/bat-extras
+    recursive: yes
+  when: not bat_extras_bin.stat.exists
+
+- name: Build and install bat-extras (batman, batgrep, batdiff, etc.)
+  shell: "./build.sh --install --prefix={{ ansible_env.HOME }}/.local"
+  args:
+    chdir: /tmp/bat-extras
+  when: not bat_extras_bin.stat.exists
+
+- name: Attempt to install thefuck via pip (best-effort - unmaintained upstream)
+  pip:
+    name: thefuck
+    extra_args: --user --break-system-packages
+  register: thefuck_install
+  ignore_errors: true
+
+- name: Warn if thefuck failed to install
+  debug:
+    msg: >-
+      thefuck failed to install - it's an unmaintained project and often breaks
+      on newer Python releases. The `fuck`/`fk` aliases in .bashrc/.zshrc will
+      simply stay inactive (they're already guarded by a command -v check).
+  when: thefuck_install is failed
+
+# ========================================
+# GITHUB CLI
+# ========================================
+# .gitconfig's credential helper calls `gh auth git-credential`, so this
+# needs to exist. gh isn't reliably packaged across all three distros
+# (Debian/Ubuntu need a third-party apt repo), so install the release
+# binary directly instead - same pattern as oh-my-posh and the Nerd Font.
+
+- name: Check if gh CLI is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/gh"
+  register: gh_bin
+
+- name: Get latest gh CLI release version
+  shell: >-
+    python3 -c "import json,urllib.request;
+    req=urllib.request.Request('https://api.github.com/repos/cli/cli/releases/latest', headers={'User-Agent': 'ansible-dotfiles'});
+    print(json.load(urllib.request.urlopen(req))['tag_name'].lstrip('v'))"
+  register: gh_version
+  changed_when: false
+  when: not gh_bin.stat.exists
+
+- name: Download and unpack gh CLI
+  unarchive:
+    src: "https://github.com/cli/cli/releases/download/v{{ gh_version.stdout }}/gh_{{ gh_version.stdout }}_linux_amd64.tar.gz"
+    dest: /tmp
+    remote_src: yes
+  when: not gh_bin.stat.exists
+
+- name: Install gh binary to ~/.local/bin
+  copy:
+    src: "/tmp/gh_{{ gh_version.stdout }}_linux_amd64/bin/gh"
+    dest: "{{ ansible_env.HOME }}/.local/bin/gh"
+    mode: '0755'
+    remote_src: yes
+  when: not gh_bin.stat.exists
+
+# ========================================
+# YAZI, ZELLIJ, ONEFETCH
+# ========================================
+
+- name: Check if yazi is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/yazi"
+  register: yazi_bin
+
+- name: Download and unpack yazi
+  unarchive:
+    src: "{{ yazi_url }}"
+    dest: /tmp
+    remote_src: yes
+  when: not yazi_bin.stat.exists
+
+- name: Install yazi + ya binaries to ~/.local/bin
+  copy:
+    src: "/tmp/yazi-x86_64-unknown-linux-gnu/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item }}"
+    mode: '0755'
+    remote_src: yes
+  loop:
+    - yazi
+    - ya
+  when: not yazi_bin.stat.exists
+
+- name: Check if zellij is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/zellij"
+  register: zellij_bin
+
+- name: Download and unpack zellij
+  unarchive:
+    src: "{{ zellij_url }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin"
+    remote_src: yes
+  when: not zellij_bin.stat.exists
+
+- name: Ensure zellij is executable
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin/zellij"
+    mode: '0755'
+  when: not zellij_bin.stat.exists
+
+- name: Check if onefetch is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/onefetch"
+  register: onefetch_bin
+
+- name: Download and unpack onefetch
+  unarchive:
+    src: "{{ onefetch_url }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin"
+    remote_src: yes
+  when: not onefetch_bin.stat.exists
+
+- name: Ensure onefetch is executable
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin/onefetch"
+    mode: '0755'
+  when: not onefetch_bin.stat.exists
+
+# ========================================
+# LAZYGIT (release asset name includes the version, so resolve it first)
+# ========================================
+
+- name: Check if lazygit is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/lazygit"
+  register: lazygit_bin
+
+- name: Get latest lazygit release version
+  shell: >-
+    python3 -c "import json,urllib.request;
+    req=urllib.request.Request('https://api.github.com/repos/jesseduffield/lazygit/releases/latest', headers={'User-Agent': 'ansible-dotfiles'});
+    print(json.load(urllib.request.urlopen(req))['tag_name'].lstrip('v'))"
+  register: lazygit_version
+  changed_when: false
+  when: not lazygit_bin.stat.exists
+
+- name: Download and unpack lazygit
+  unarchive:
+    src: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version.stdout }}/lazygit_{{ lazygit_version.stdout }}_Linux_x86_64.tar.gz"
+    dest: /tmp/lazygit
+    remote_src: yes
+  when: not lazygit_bin.stat.exists
+
+- name: Install lazygit to ~/.local/bin
+  copy:
+    src: /tmp/lazygit/lazygit
+    dest: "{{ ansible_env.HOME }}/.local/bin/lazygit"
+    mode: '0755'
+    remote_src: yes
+  when: not lazygit_bin.stat.exists
+
+# ========================================
+# NERD FONT
+# ========================================
+
+- name: Check if Monaspace Nerd Font is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
+  register: nerd_font_dir
+
+- name: Ensure fonts directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
+    state: directory
+  when: not nerd_font_dir.stat.exists
+
+- name: Download and unpack Monaspace Nerd Font
+  unarchive:
+    src: "{{ nerd_font_url }}"
+    dest: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
+    remote_src: yes
+  when: not nerd_font_dir.stat.exists
+
+- name: Rebuild font cache
+  command: fc-cache -f "{{ ansible_env.HOME }}/.local/share/fonts"
+  when: not nerd_font_dir.stat.exists
+
+# ========================================
+# DOTFILES
+# ========================================
+
+- name: Ensure .config directories exist
+  file:
+    path: "{{ ansible_env.HOME }}/.config"
+    state: directory
+
+- name: Remove default shell configs to allow symlinking
+  file:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+    state: absent
+  loop:
+    - .bashrc
+    - .bash_profile
+    - .zshrc
+
+- name: Stow all configuration packages
+  command:
+    cmd: "stow -v -d {{ playbook_dir }}/../dotfiles -t {{ ansible_env.HOME }} {{ item }} --no-folding"
+  loop:
+    - git
+    - editorconfig
+    - fastfetch
+    - ohmyposh
+    - fzf-git
+    - bash
+    - zsh
+    - kitty
+  register: stow_result
+  changed_when: "'LINK' in stow_result.stderr"

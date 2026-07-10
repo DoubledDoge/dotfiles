@@ -1,0 +1,76 @@
+---
+common_packages:
+  - git
+  - zsh
+  - stow
+  - fzf
+  - unzip
+  - curl
+  - ripgrep
+  - zoxide
+  - duf
+  - btop
+  - jq
+  - direnv
+  - micro
+
+# Note: bat -> installs as `batcat`, fd-find -> installs as `fdfind`.
+# A later task symlinks these back to `bat`/`fd` so aliases work unmodified.
+debian_packages:
+  - build-essential
+  - kitty
+  - bat
+  - fd-find
+  - p7zip-full
+  - less
+  - python3-pip
+
+arch_packages:
+  - base-devel
+  - kitty
+  - bat
+  - fd
+  - p7zip
+  - less
+  - lesspipe
+  - python-pip
+
+fedora_packages:
+  - '@development-tools'
+  - kitty
+  - bat
+  - fd-find
+  - p7zip
+  - p7zip-plugins
+  - less
+  - python3-pip
+
+# Tools installed via `cargo install` rather than the system package manager.
+# These either aren't packaged at all on some distros (rip, fcp, dust, tre),
+# or have been unreliable/dropped from official repos before (eza on Fedora,
+# git-delta on some releases) - cargo sidesteps that entirely.
+cargo_packages:
+  - crate: eza
+    bin: eza
+  - crate: git-delta
+    bin: delta
+  - crate: rip2
+    bin: rip
+  - crate: fcp
+    bin: fcp
+  - crate: du-dust
+    bin: dust
+  - crate: tre-command
+    bin: tre
+  - crate: topgrade
+    bin: topgrade
+  - crate: hyperfine
+    bin: hyperfine
+  - crate: sd
+    bin: sd
+
+nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
+bat_extras_repo: "https://github.com/eth-p/bat-extras.git"
+yazi_url: "https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip"
+zellij_url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+onefetch_url: "https://github.com/o2sh/onefetch/releases/latest/download/onefetch-linux.tar.gz"

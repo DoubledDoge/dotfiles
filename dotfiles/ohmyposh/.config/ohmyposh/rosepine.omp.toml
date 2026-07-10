@@ -1,0 +1,142 @@
+version = 3
+final_space = true
+console_title_template = '{{ .UserName }}@{{ .HostName }}: {{ .Folder }}'
+
+[palette]
+  base    = '#191724'
+  overlay = '#26233a'
+  muted   = '#6e6a86'
+  subtle  = '#908caa'
+  text    = '#e0def4'
+  love    = '#eb6f92'
+  gold    = '#f6c177'
+  rose    = '#ebbcba'
+  pine    = '#31748f'
+  foam    = '#9ccfd8'
+  iris    = '#c4a7e7'
+
+[secondary_prompt]
+  template = '❯❯ '
+  foreground = 'p:iris'
+  background = 'transparent'
+
+[transient_prompt]
+  template = '❯ '
+  background = 'transparent'
+  foreground_templates = ['{{if gt .Code 0}}p:love{{end}}', '{{if eq .Code 0}}p:iris{{end}}']
+  
+[[blocks]]
+  type = 'prompt'
+  alignment = 'left'
+  newline = true
+
+  # OS icon
+  [[blocks.segments]]
+    template = ' {{ .Icon }} '
+    foreground = 'p:base'
+    background = 'p:pine'
+    type = 'os'
+    style = 'diamond'
+    leading_diamond = '╭─'
+
+    [blocks.segments.properties]
+      cache_duration = 'none'
+
+  # user@host
+  [[blocks.segments]]
+    template = ' {{ .UserName }}@{{ .HostName }} '
+    foreground = 'p:text'
+    background = 'p:overlay'
+    type = 'session'
+    style = 'plain'
+
+    [blocks.segments.properties]
+      cache_duration = 'none'
+
+  # Path
+  [[blocks.segments]]
+    template = ' {{ .Path }} '
+    foreground = 'p:base'
+    background = 'p:foam'
+    type = 'path'
+    style = 'plain'
+
+    [blocks.segments.properties]
+      cache_duration = 'none'
+      style = 'full'
+
+  # Git
+  [[blocks.segments]]
+    template = ' {{ .HEAD }}{{ if or (.Working.Changed) (.Staging.Changed) }}*{{ end }} {{ if gt .Behind 0 }}⇣{{ end }}{{ if gt .Ahead 0 }}⇡{{ end }} '
+    foreground = 'p:base'
+    background = 'p:gold'
+    background_templates = ['{{ if or (.Working.Changed) (.Staging.Changed) }}p:love{{ end }}']
+    type = 'git'
+    style = 'plain'
+
+    [blocks.segments.properties]
+      branch_icon = ' '
+      cache_duration = 'none'
+      commit_icon = '@'
+      fetch_status = true
+
+[[blocks]]
+  type = 'rprompt'
+  overflow = 'hidden'
+
+  # Time of day
+  [[blocks.segments]]
+    template = '{{ .CurrentDate | date .Format }}'
+    foreground = 'p:subtle'
+    background = 'transparent'
+    type = 'time'
+    style = 'plain'
+
+    [blocks.segments.properties]
+      time_format = '15:04'
+
+  # Background jobs (populated via shell hook, see .bashrc / .zshrc)
+  [[blocks.segments]]
+    template = '{{ if ne .Env.BG_JOBS "0" }} ✦{{ .Env.BG_JOBS }}{{ end }}'
+    foreground = 'p:iris'
+    background = 'transparent'
+    type = 'text'
+    style = 'plain'
+
+  # Last exit code (only shows on failure)
+  [[blocks.segments]]
+    template = '{{ if gt .Code 0 }} ✗ {{ .Code }}{{ end }}'
+    foreground = 'p:love'
+    background = 'transparent'
+    type = 'status'
+    style = 'plain'
+
+    [blocks.segments.properties]
+      cache_duration = 'none'
+
+  # Execution time (only shows above the threshold)
+  [[blocks.segments]]
+    template = ' {{ .FormattedMs }}'
+    foreground = 'p:gold'
+    background = 'transparent'
+    type = 'executiontime'
+    style = 'plain'
+
+    [blocks.segments.properties]
+      cache_duration = 'none'
+      threshold = 5000
+
+[[blocks]]
+  type = 'prompt'
+  alignment = 'left'
+  newline = true
+
+  [[blocks.segments]]
+    template = '╰❯'
+    background = 'transparent'
+    type = 'text'
+    style = 'plain'
+    foreground_templates = ['{{if gt .Code 0}}p:love{{end}}', '{{if eq .Code 0}}p:iris{{end}}']
+
+    [blocks.segments.properties]
+      cache_duration = 'none'

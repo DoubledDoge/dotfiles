@@ -1,7 +1,7 @@
 [user]
 	name = DoubledDoge
 	email = dbritz22@proton.me
-	signingkey = 
+	signingkey = {REPLACE}
 
 [core]
 	compression = 9
@@ -29,6 +29,9 @@
 	context = 3
 	renames = copies
 	interHunkContext = 10
+	algorithm = histogram
+	colorMoved = default
+	colorMovedWS = allow-indentation-change
 
 [color "diff"]
 	meta = black bold
@@ -53,6 +56,7 @@
 
 [rerere]
 	enabled = true
+	autoupdate = true
 
 [log]
 	abbrevCommit = true
@@ -93,11 +97,33 @@
 [commit]
 	template = ~/.gitmessage
 	gpgSign = true
+	verbose = true
 
 [credential "https://github.com"]
 	helper = 
-	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+	helper = !gh auth git-credential
 
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential
+	helper = !gh auth git-credential
+
+[alias]
+	cm = commit
+	co = checkout
+	ac = !git add -A && git commit
+	st = status -sb
+	tags = tag -l
+	branches = branch -a
+	cleanup = !git branch --merged | grep -v '*' | xargs git branch -d
+	remotes = remote -v
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+	uns = restore --staged
+	amend = commit --amend --no-edit
+	undo = reset --soft HEAD~1
+	last = log -1 HEAD --stat
+
+[help]
+	autocorrect = 15
+
+[color]
+	ui = 1
