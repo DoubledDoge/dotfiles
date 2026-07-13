@@ -1,7 +1,5 @@
 *.retry
 *.log
-ansible/inventory/
-!ansible/inventory/hosts.ini
 
 __pycache__/
 *.py[cod]

@@ -1,314 +1,345 @@
 ---
 - name: Load OS-specific variables
-  include_vars: main.yml
+  ansible.builtin.include_vars: main.yml
 
 - name: Update Apt Cache (Debian/Ubuntu)
   become: true
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     cache_valid_time: 3600
   when: ansible_pkg_mgr == 'apt'
 
 - name: Install Common Packages
   become: true
-  package:
-    name: "{{ common_packages }}"
+  ansible.builtin.package:
+    name: "{{ linux_common_packages }}"
     state: present
 
 - name: Install Debian/Ubuntu Packages
   become: true
-  apt:
-    name: "{{ debian_packages }}"
+  ansible.builtin.apt:
+    name: "{{ linux_debian_packages }}"
     state: present
   when: ansible_pkg_mgr == 'apt'
 
 - name: Install Arch Packages
   become: true
-  pacman:
-    name: "{{ arch_packages }}"
+  community.general.pacman:
+    name: "{{ linux_arch_packages }}"
     state: present
-    update_cache: yes
+    update_cache: true
   when: ansible_pkg_mgr == 'pacman'
 
 - name: Install Fedora Packages
   become: true
-  dnf:
-    name: "{{ fedora_packages }}"
+  ansible.builtin.dnf:
+    name: "{{ linux_fedora_packages }}"
     state: present
-    update_cache: yes
+    update_cache: true
   when: ansible_pkg_mgr == 'dnf'
 
 # ========================================
 # BINARY NAME FIXUPS
 # ========================================
-# Debian/Ubuntu ship `bat` and `fd-find` under renamed binaries (`batcat`,
-# `fdfind`) to avoid clashes with unrelated packages of those names. These
-# symlinks are safe no-ops on distros where the rename doesn't happen.
 
 - name: Ensure ~/.local/bin exists
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.local/bin"
     state: directory
     mode: '0755'
 
 - name: Check for renamed batcat binary
-  stat:
+  ansible.builtin.stat:
     path: /usr/bin/batcat
-  register: batcat_bin
+  register: linux_batcat_bin
 
 - name: Symlink batcat -> bat
-  file:
+  ansible.builtin.file:
     src: /usr/bin/batcat
     dest: "{{ ansible_env.HOME }}/.local/bin/bat"
     state: link
-  when: batcat_bin.stat.exists
+  when: linux_batcat_bin.stat.exists
 
 - name: Check for renamed fdfind binary
-  stat:
+  ansible.builtin.stat:
     path: /usr/bin/fdfind
-  register: fdfind_bin
+  register: linux_fdfind_bin
 
 - name: Symlink fdfind -> fd
-  file:
+  ansible.builtin.file:
     src: /usr/bin/fdfind
     dest: "{{ ansible_env.HOME }}/.local/bin/fd"
     state: link
-  when: fdfind_bin.stat.exists
+  when: linux_fdfind_bin.stat.exists
 
 # ========================================
 # MANUAL INSTALLS
 # ========================================
 
 - name: Check if Oh-My-Posh is installed
-  stat:
+  ansible.builtin.stat:
     path: /usr/local/bin/oh-my-posh
-  register: omp_bin
+  register: linux_omp_bin
 
-- name: Install Oh-My-Posh
+- name: Download Oh-My-Posh install script
+  ansible.builtin.get_url:
+    url: https://ohmyposh.dev/install.sh
+    dest: /tmp/ohmyposh-install.sh
+    mode: '0755'
+  when: not linux_omp_bin.stat.exists
+
+- name: Run Oh-My-Posh install script
   become: true
-  shell: curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin
-  when: not omp_bin.stat.exists
+  ansible.builtin.command: bash /tmp/ohmyposh-install.sh -d /usr/local/bin
+  when: not linux_omp_bin.stat.exists
+  changed_when: true
 
 - name: Check if rustup/cargo is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
-  register: cargo_bin
+  register: linux_cargo_bin
 
-- name: Install rustup (needed for cargo-only tools below)
-  shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-  when: not cargo_bin.stat.exists
+- name: Download rustup install script
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-install.sh
+    mode: '0755'
+  when: not linux_cargo_bin.stat.exists
+
+- name: Run rustup install script (needed for cargo-only tools below)
+  ansible.builtin.command: sh /tmp/rustup-install.sh -y --default-toolchain stable
+  when: not linux_cargo_bin.stat.exists
+  changed_when: true
 
 - name: Install cargo-only tools (eza, delta, rip, fcp, dust, tre, topgrade)
-  shell: "{{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.crate }}"
+  ansible.builtin.command: "{{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.crate }}"
   args:
     creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.bin }}"
-  loop: "{{ cargo_packages }}"
+  loop: "{{ linux_cargo_packages }}"
   loop_control:
     label: "{{ item.crate }}"
 
 - name: Check if bat-extras is already installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/bin/batman"
-  register: bat_extras_bin
+  register: linux_bat_extras_bin
 
 - name: Clone bat-extras
-  git:
-    repo: "{{ bat_extras_repo }}"
+  ansible.builtin.git:
+    repo: "{{ linux_bat_extras_repo }}"
     dest: /tmp/bat-extras
-    recursive: yes
-  when: not bat_extras_bin.stat.exists
+    version: master
+    recursive: true
+  when: not linux_bat_extras_bin.stat.exists
 
 - name: Build and install bat-extras (batman, batgrep, batdiff, etc.)
-  shell: "./build.sh --install --prefix={{ ansible_env.HOME }}/.local"
+  ansible.builtin.command: ./build.sh --install --prefix={{ ansible_env.HOME }}/.local
   args:
     chdir: /tmp/bat-extras
-  when: not bat_extras_bin.stat.exists
+  when: not linux_bat_extras_bin.stat.exists
+  changed_when: true
 
 - name: Attempt to install thefuck via pip (best-effort - unmaintained upstream)
-  pip:
+  ansible.builtin.pip:
     name: thefuck
     extra_args: --user --break-system-packages
-  register: thefuck_install
+  register: linux_thefuck_install
   ignore_errors: true
 
 - name: Warn if thefuck failed to install
-  debug:
+  ansible.builtin.debug:
     msg: >-
       thefuck failed to install - it's an unmaintained project and often breaks
       on newer Python releases. The `fuck`/`fk` aliases in .bashrc/.zshrc will
       simply stay inactive (they're already guarded by a command -v check).
-  when: thefuck_install is failed
+  when: linux_thefuck_install is failed
 
 # ========================================
 # GITHUB CLI
 # ========================================
-# .gitconfig's credential helper calls `gh auth git-credential`, so this
-# needs to exist. gh isn't reliably packaged across all three distros
-# (Debian/Ubuntu need a third-party apt repo), so install the release
-# binary directly instead - same pattern as oh-my-posh and the Nerd Font.
 
 - name: Check if gh CLI is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/bin/gh"
-  register: gh_bin
+  register: linux_gh_bin
 
 - name: Get latest gh CLI release version
-  shell: >-
+  ansible.builtin.shell: >-
     python3 -c "import json,urllib.request;
     req=urllib.request.Request('https://api.github.com/repos/cli/cli/releases/latest', headers={'User-Agent': 'ansible-dotfiles'});
     print(json.load(urllib.request.urlopen(req))['tag_name'].lstrip('v'))"
-  register: gh_version
+  register: linux_gh_version
   changed_when: false
-  when: not gh_bin.stat.exists
+  when: not linux_gh_bin.stat.exists
 
 - name: Download and unpack gh CLI
-  unarchive:
-    src: "https://github.com/cli/cli/releases/download/v{{ gh_version.stdout }}/gh_{{ gh_version.stdout }}_linux_amd64.tar.gz"
+  ansible.builtin.unarchive:
+    src: "https://github.com/cli/cli/releases/download/v{{ linux_gh_version.stdout }}/gh_{{ linux_gh_version.stdout }}_linux_amd64.tar.gz"
     dest: /tmp
-    remote_src: yes
-  when: not gh_bin.stat.exists
+    remote_src: true
+  when: not linux_gh_bin.stat.exists
 
 - name: Install gh binary to ~/.local/bin
-  copy:
-    src: "/tmp/gh_{{ gh_version.stdout }}_linux_amd64/bin/gh"
+  ansible.builtin.copy:
+    src: "/tmp/gh_{{ linux_gh_version.stdout }}_linux_amd64/bin/gh"
     dest: "{{ ansible_env.HOME }}/.local/bin/gh"
     mode: '0755'
-    remote_src: yes
-  when: not gh_bin.stat.exists
+    remote_src: true
+  when: not linux_gh_bin.stat.exists
 
 # ========================================
 # YAZI, ZELLIJ, ONEFETCH
 # ========================================
 
 - name: Check if yazi is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/bin/yazi"
-  register: yazi_bin
+  register: linux_yazi_bin
 
 - name: Download and unpack yazi
-  unarchive:
-    src: "{{ yazi_url }}"
+  ansible.builtin.unarchive:
+    src: "{{ linux_yazi_url }}"
     dest: /tmp
-    remote_src: yes
-  when: not yazi_bin.stat.exists
+    remote_src: true
+  when: not linux_yazi_bin.stat.exists
 
 - name: Install yazi + ya binaries to ~/.local/bin
-  copy:
+  ansible.builtin.copy:
     src: "/tmp/yazi-x86_64-unknown-linux-gnu/{{ item }}"
     dest: "{{ ansible_env.HOME }}/.local/bin/{{ item }}"
     mode: '0755'
-    remote_src: yes
+    remote_src: true
   loop:
     - yazi
     - ya
-  when: not yazi_bin.stat.exists
+  when: not linux_yazi_bin.stat.exists
 
 - name: Check if zellij is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/bin/zellij"
-  register: zellij_bin
+  register: linux_zellij_bin
 
 - name: Download and unpack zellij
-  unarchive:
-    src: "{{ zellij_url }}"
+  ansible.builtin.unarchive:
+    src: "{{ linux_zellij_url }}"
     dest: "{{ ansible_env.HOME }}/.local/bin"
-    remote_src: yes
-  when: not zellij_bin.stat.exists
+    remote_src: true
+  when: not linux_zellij_bin.stat.exists
 
 - name: Ensure zellij is executable
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.local/bin/zellij"
     mode: '0755'
-  when: not zellij_bin.stat.exists
+  when: not linux_zellij_bin.stat.exists
 
 - name: Check if onefetch is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/bin/onefetch"
-  register: onefetch_bin
+  register: linux_onefetch_bin
 
 - name: Download and unpack onefetch
-  unarchive:
-    src: "{{ onefetch_url }}"
+  ansible.builtin.unarchive:
+    src: "{{ linux_onefetch_url }}"
     dest: "{{ ansible_env.HOME }}/.local/bin"
-    remote_src: yes
-  when: not onefetch_bin.stat.exists
+    remote_src: true
+  when: not linux_onefetch_bin.stat.exists
 
 - name: Ensure onefetch is executable
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.local/bin/onefetch"
     mode: '0755'
-  when: not onefetch_bin.stat.exists
+  when: not linux_onefetch_bin.stat.exists
 
 # ========================================
-# LAZYGIT (release asset name includes the version, so resolve it first)
+# LAZYGIT
 # ========================================
 
 - name: Check if lazygit is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/bin/lazygit"
-  register: lazygit_bin
+  register: linux_lazygit_bin
 
 - name: Get latest lazygit release version
-  shell: >-
+  ansible.builtin.shell: >-
     python3 -c "import json,urllib.request;
     req=urllib.request.Request('https://api.github.com/repos/jesseduffield/lazygit/releases/latest', headers={'User-Agent': 'ansible-dotfiles'});
     print(json.load(urllib.request.urlopen(req))['tag_name'].lstrip('v'))"
-  register: lazygit_version
+  register: linux_lazygit_version
   changed_when: false
-  when: not lazygit_bin.stat.exists
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Set lazygit release asset path
+  ansible.builtin.set_fact:
+    linux_lazygit_path: "v{{ linux_lazygit_version.stdout }}/lazygit_{{ linux_lazygit_version.stdout }}_Linux_x86_64.tar.gz"
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Set lazygit download URL
+  ansible.builtin.set_fact:
+    linux_lazygit_download_url: "https://github.com/jesseduffield/lazygit/releases/download/{{ linux_lazygit_path }}"
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Ensure lazygit extraction directory exists
+  ansible.builtin.file:
+    path: /tmp/lazygit
+    state: directory
+    mode: '0755'
+  when: not linux_lazygit_bin.stat.exists
 
 - name: Download and unpack lazygit
-  unarchive:
-    src: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version.stdout }}/lazygit_{{ lazygit_version.stdout }}_Linux_x86_64.tar.gz"
+  ansible.builtin.unarchive:
+    src: "{{ linux_lazygit_download_url }}"
     dest: /tmp/lazygit
-    remote_src: yes
-  when: not lazygit_bin.stat.exists
+    remote_src: true
+  when: not linux_lazygit_bin.stat.exists
 
 - name: Install lazygit to ~/.local/bin
-  copy:
+  ansible.builtin.copy:
     src: /tmp/lazygit/lazygit
     dest: "{{ ansible_env.HOME }}/.local/bin/lazygit"
     mode: '0755'
-    remote_src: yes
-  when: not lazygit_bin.stat.exists
+    remote_src: true
+  when: not linux_lazygit_bin.stat.exists
 
 # ========================================
 # NERD FONT
 # ========================================
 
 - name: Check if Monaspace Nerd Font is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
-  register: nerd_font_dir
+  register: linux_nerd_font_dir
 
 - name: Ensure fonts directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
     state: directory
-  when: not nerd_font_dir.stat.exists
+    mode: '0755'
+  when: not linux_nerd_font_dir.stat.exists
 
 - name: Download and unpack Monaspace Nerd Font
-  unarchive:
-    src: "{{ nerd_font_url }}"
+  ansible.builtin.unarchive:
+    src: "{{ linux_nerd_font_url }}"
     dest: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
-    remote_src: yes
-  when: not nerd_font_dir.stat.exists
+    remote_src: true
+  when: not linux_nerd_font_dir.stat.exists
 
 - name: Rebuild font cache
-  command: fc-cache -f "{{ ansible_env.HOME }}/.local/share/fonts"
-  when: not nerd_font_dir.stat.exists
+  ansible.builtin.command: fc-cache -f "{{ ansible_env.HOME }}/.local/share/fonts"
+  when: not linux_nerd_font_dir.stat.exists
+  changed_when: true
 
 # ========================================
 # DOTFILES
 # ========================================
 
 - name: Ensure .config directories exist
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config"
     state: directory
+    mode: '0755'
 
 - name: Remove default shell configs to allow symlinking
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/{{ item }}"
     state: absent
   loop:
@@ -317,7 +348,7 @@
     - .zshrc
 
 - name: Stow all configuration packages
-  command:
+  ansible.builtin.command:
     cmd: "stow -v -d {{ playbook_dir }}/../dotfiles -t {{ ansible_env.HOME }} {{ item }} --no-folding"
   loop:
     - git
@@ -328,5 +359,5 @@
     - bash
     - zsh
     - kitty
-  register: stow_result
-  changed_when: "'LINK' in stow_result.stderr"
+  register: linux_stow_result
+  changed_when: "'LINK' in linux_stow_result.stderr"
