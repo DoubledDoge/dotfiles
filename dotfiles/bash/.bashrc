@@ -109,7 +109,7 @@ fi
 # ========================================
 
 alias ls='eza --color=always --git --icons=always --group-directories-first'
-alias ll='eza -la --color=always --git --icons=always --group-directories-first'
+alias ll='eza -l --color=always --git --icons=always --group-directories-first'
 alias la='eza -la --color=always --git --icons=always --group-directories-first'
 alias lt='eza --tree --color=always --icons=always --group-directories-first'
 alias nano='micro'
