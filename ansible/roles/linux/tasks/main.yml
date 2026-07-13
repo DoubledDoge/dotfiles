@@ -7,7 +7,7 @@
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_facts['pkg_mgr'] == 'apt'
 
 - name: Install Common Packages
   become: true
@@ -20,7 +20,7 @@
   ansible.builtin.apt:
     name: "{{ linux_debian_packages }}"
     state: present
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_facts['pkg_mgr'] == 'apt'
 
 - name: Install Arch Packages
   become: true
@@ -28,7 +28,7 @@
     name: "{{ linux_arch_packages }}"
     state: present
     update_cache: true
-  when: ansible_pkg_mgr == 'pacman'
+  when: ansible_facts['pkg_mgr'] == 'pacman'
 
 - name: Install Fedora Packages
   become: true
@@ -36,7 +36,7 @@
     name: "{{ linux_fedora_packages }}"
     state: present
     update_cache: true
-  when: ansible_pkg_mgr == 'dnf'
+  when: ansible_facts['pkg_mgr'] == 'dnf'
 
 # ========================================
 # BINARY NAME FIXUPS
@@ -44,7 +44,7 @@
 
 - name: Ensure ~/.local/bin exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/bin"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
     state: directory
     mode: '0755'
 
@@ -56,7 +56,7 @@
 - name: Symlink batcat -> bat
   ansible.builtin.file:
     src: /usr/bin/batcat
-    dest: "{{ ansible_env.HOME }}/.local/bin/bat"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin/bat"
     state: link
   when: linux_batcat_bin.stat.exists
 
@@ -68,7 +68,7 @@
 - name: Symlink fdfind -> fd
   ansible.builtin.file:
     src: /usr/bin/fdfind
-    dest: "{{ ansible_env.HOME }}/.local/bin/fd"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin/fd"
     state: link
   when: linux_fdfind_bin.stat.exists
 
@@ -96,7 +96,7 @@
 
 - name: Check if rustup/cargo is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
+    path: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo"
   register: linux_cargo_bin
 
 - name: Download rustup install script
@@ -112,16 +112,16 @@
   changed_when: true
 
 - name: Install cargo-only tools (eza, delta, rip, fcp, dust, tre, topgrade)
-  ansible.builtin.command: "{{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.crate }}"
+  ansible.builtin.command: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo install {{ item.crate }}"
   args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.bin }}"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/{{ item.bin }}"
   loop: "{{ linux_cargo_packages }}"
   loop_control:
     label: "{{ item.crate }}"
 
 - name: Check if bat-extras is already installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/batman"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/batman"
   register: linux_bat_extras_bin
 
 - name: Clone bat-extras
@@ -133,7 +133,7 @@
   when: not linux_bat_extras_bin.stat.exists
 
 - name: Build and install bat-extras (batman, batgrep, batdiff, etc.)
-  ansible.builtin.command: ./build.sh --install --prefix={{ ansible_env.HOME }}/.local
+  ansible.builtin.command: ./build.sh --install --prefix={{ ansible_facts['env']['HOME'] }}/.local
   args:
     chdir: /tmp/bat-extras
   when: not linux_bat_extras_bin.stat.exists
@@ -160,7 +160,7 @@
 
 - name: Check if gh CLI is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/gh"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/gh"
   register: linux_gh_bin
 
 - name: Get latest gh CLI release version
@@ -182,7 +182,7 @@
 - name: Install gh binary to ~/.local/bin
   ansible.builtin.copy:
     src: "/tmp/gh_{{ linux_gh_version.stdout }}_linux_amd64/bin/gh"
-    dest: "{{ ansible_env.HOME }}/.local/bin/gh"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin/gh"
     mode: '0755'
     remote_src: true
   when: not linux_gh_bin.stat.exists
@@ -193,7 +193,7 @@
 
 - name: Check if yazi is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/yazi"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/yazi"
   register: linux_yazi_bin
 
 - name: Download and unpack yazi
@@ -206,7 +206,7 @@
 - name: Install yazi + ya binaries to ~/.local/bin
   ansible.builtin.copy:
     src: "/tmp/yazi-x86_64-unknown-linux-gnu/{{ item }}"
-    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin/{{ item }}"
     mode: '0755'
     remote_src: true
   loop:
@@ -216,37 +216,37 @@
 
 - name: Check if zellij is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/zellij"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/zellij"
   register: linux_zellij_bin
 
 - name: Download and unpack zellij
   ansible.builtin.unarchive:
     src: "{{ linux_zellij_url }}"
-    dest: "{{ ansible_env.HOME }}/.local/bin"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
     remote_src: true
   when: not linux_zellij_bin.stat.exists
 
 - name: Ensure zellij is executable
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/bin/zellij"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/zellij"
     mode: '0755'
   when: not linux_zellij_bin.stat.exists
 
 - name: Check if onefetch is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/onefetch"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/onefetch"
   register: linux_onefetch_bin
 
 - name: Download and unpack onefetch
   ansible.builtin.unarchive:
     src: "{{ linux_onefetch_url }}"
-    dest: "{{ ansible_env.HOME }}/.local/bin"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
     remote_src: true
   when: not linux_onefetch_bin.stat.exists
 
 - name: Ensure onefetch is executable
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/bin/onefetch"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/onefetch"
     mode: '0755'
   when: not linux_onefetch_bin.stat.exists
 
@@ -256,7 +256,7 @@
 
 - name: Check if lazygit is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/lazygit"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/lazygit"
   register: linux_lazygit_bin
 
 - name: Get latest lazygit release version
@@ -295,7 +295,7 @@
 - name: Install lazygit to ~/.local/bin
   ansible.builtin.copy:
     src: /tmp/lazygit/lazygit
-    dest: "{{ ansible_env.HOME }}/.local/bin/lazygit"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/bin/lazygit"
     mode: '0755'
     remote_src: true
   when: not linux_lazygit_bin.stat.exists
@@ -306,12 +306,12 @@
 
 - name: Check if Monaspace Nerd Font is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts/Monaspace"
   register: linux_nerd_font_dir
 
 - name: Ensure fonts directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts/Monaspace"
     state: directory
     mode: '0755'
   when: not linux_nerd_font_dir.stat.exists
@@ -319,12 +319,12 @@
 - name: Download and unpack Monaspace Nerd Font
   ansible.builtin.unarchive:
     src: "{{ linux_nerd_font_url }}"
-    dest: "{{ ansible_env.HOME }}/.local/share/fonts/Monaspace"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts/Monaspace"
     remote_src: true
   when: not linux_nerd_font_dir.stat.exists
 
 - name: Rebuild font cache
-  ansible.builtin.command: fc-cache -f "{{ ansible_env.HOME }}/.local/share/fonts"
+  ansible.builtin.command: fc-cache -f "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts"
   when: not linux_nerd_font_dir.stat.exists
   changed_when: true
 
@@ -334,13 +334,13 @@
 
 - name: Ensure .config directories exist
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config"
     state: directory
     mode: '0755'
 
 - name: Remove default shell configs to allow symlinking
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/{{ item }}"
+    path: "{{ ansible_facts['env']['HOME'] }}/{{ item }}"
     state: absent
   loop:
     - .bashrc
@@ -349,7 +349,7 @@
 
 - name: Stow all configuration packages
   ansible.builtin.command:
-    cmd: "stow -v -d {{ playbook_dir }}/../dotfiles -t {{ ansible_env.HOME }} {{ item }} --no-folding"
+    cmd: "stow -v -d {{ playbook_dir }}/../dotfiles -t {{ ansible_facts['env']['HOME'] }} {{ item }} --no-folding"
   loop:
     - git
     - editorconfig

@@ -1,5 +1,5 @@
 ---
-common_packages:
+linux_common_packages:
   - git
   - zsh
   - stow
@@ -14,9 +14,7 @@ common_packages:
   - direnv
   - micro
 
-# Note: bat -> installs as `batcat`, fd-find -> installs as `fdfind`.
-# A later task symlinks these back to `bat`/`fd` so aliases work unmodified.
-debian_packages:
+linux_debian_packages:
   - build-essential
   - kitty
   - bat
@@ -25,7 +23,7 @@ debian_packages:
   - less
   - python3-pip
 
-arch_packages:
+linux_arch_packages:
   - base-devel
   - kitty
   - bat
@@ -35,7 +33,7 @@ arch_packages:
   - lesspipe
   - python-pip
 
-fedora_packages:
+linux_fedora_packages:
   - '@development-tools'
   - kitty
   - bat
@@ -45,11 +43,7 @@ fedora_packages:
   - less
   - python3-pip
 
-# Tools installed via `cargo install` rather than the system package manager.
-# These either aren't packaged at all on some distros (rip, fcp, dust, tre),
-# or have been unreliable/dropped from official repos before (eza on Fedora,
-# git-delta on some releases) - cargo sidesteps that entirely.
-cargo_packages:
+linux_cargo_packages:
   - crate: eza
     bin: eza
   - crate: git-delta
@@ -69,8 +63,8 @@ cargo_packages:
   - crate: sd
     bin: sd
 
-nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
-bat_extras_repo: "https://github.com/eth-p/bat-extras.git"
-yazi_url: "https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip"
-zellij_url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
-onefetch_url: "https://github.com/o2sh/onefetch/releases/latest/download/onefetch-linux.tar.gz"
+linux_nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
+linux_bat_extras_repo: "https://github.com/eth-p/bat-extras.git"
+linux_yazi_url: "https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip"
+linux_zellij_url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+linux_onefetch_url: "https://github.com/o2sh/onefetch/releases/latest/download/onefetch-linux.tar.gz"

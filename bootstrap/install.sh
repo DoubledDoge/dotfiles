@@ -7,7 +7,7 @@ DOTFILES_DIR="$HOME/dotfiles"
 
 echo "=== Linux Dotfiles Bootstrap ==="
 
-# 1. Install Prerequisites
+# 1. Install Prerequisites (Git & Ansible)
 if ! command -v git &> /dev/null; then
     echo "Installing Git..."
     if [ -f /etc/debian_version ]; then
@@ -43,7 +43,7 @@ fi
 echo "Running Ansible setup..."
 cd "$DOTFILES_DIR/ansible"
 ansible-galaxy collection install -r requirements.yml
-ansible-playbook setup.yml
+ansible-playbook setup.yml --ask-become-pass
 
 echo "=== Setup Complete! ==="
 echo "Please restart your shell to see changes."
