@@ -7,10 +7,6 @@ mkcd() {
     mkdir -p "$1" && cd "$1" || return
 }
 
-which() {
-    (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot "$@"
-}
-
 extract() {
     if [ -f "$1" ]; then
         case "$1" in
@@ -48,7 +44,7 @@ sysinfo() {
     echo "Kernel: $(uname -r)"
     echo "CPU: $(lscpu | grep 'Model name' | cut -d ':' -f2 | xargs)"
     echo "Memory: $(free -h | awk '/^Mem:/ {print $3 "/" $2}')"
-    echo "Disk: $(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 " used)"}')"
+    echo "Disk: $(/usr/bin/df  / | awk 'NR==2 {print $3 "/" $2 " (" $5 " used)"}')"
 }
 
 if command -v yazi >/dev/null 2>&1; then
