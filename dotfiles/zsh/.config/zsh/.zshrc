@@ -180,7 +180,7 @@ add-zsh-hook precmd _update_bg_jobs
 # PERFORMANCE OPTIMIZATION
 # ========================================
 
-ZSHRC_PATH="$HOME/.zshrc"
+ZSHRC_PATH="${ZDOTDIR:-$HOME}/.zshrc"
 if [[ "$ZSHRC_PATH" -nt "$ZSHRC_PATH.zwc" ]] || [[ ! -s "$ZSHRC_PATH.zwc" ]]; then
     zcompile "$ZSHRC_PATH"
 fi

@@ -26,8 +26,11 @@
   loop:
     - .bashrc
     - .bash_profile
+    - .zshenv
     - .zshrc
     - .zprofile
+    - .config/zsh/.zshrc
+    - .config/zsh/.zprofile
 
 - name: Stow all configuration packages
   ansible.builtin.command:
@@ -44,4 +47,3 @@
     - kitty
   register: linux_stow_result
   changed_when: "'LINK' in linux_stow_result.stderr"
-  
