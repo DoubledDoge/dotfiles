@@ -184,3 +184,16 @@ ZSHRC_PATH="${ZDOTDIR:-$HOME}/.zshrc"
 if [[ "$ZSHRC_PATH" -nt "$ZSHRC_PATH.zwc" ]] || [[ ! -s "$ZSHRC_PATH.zwc" ]]; then
     zcompile "$ZSHRC_PATH"
 fi
+
+# ========================================
+# LOGOUT CLEANUP
+# ========================================
+
+TRAPEXIT() {
+    if [[ ! -o login ]]; then
+        . ~/.config/zsh/.zlogout
+    fi
+}
+
+export TMOUT=500
+readonly TMOUT
