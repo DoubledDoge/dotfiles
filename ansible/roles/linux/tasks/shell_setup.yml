@@ -27,6 +27,7 @@
     - .bashrc
     - .bash_profile
     - .zshrc
+    - .zprofile
 
 - name: Stow all configuration packages
   ansible.builtin.command:
@@ -43,3 +44,4 @@
     - kitty
   register: linux_stow_result
   changed_when: "'LINK' in linux_stow_result.stderr"
+  
