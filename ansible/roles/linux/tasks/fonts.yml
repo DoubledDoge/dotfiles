@@ -1,0 +1,24 @@
+---
+- name: Check if Monaspace Nerd Font is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.local/share/fonts/Monaspace"
+  register: linux_nerd_font_dir
+
+- name: Ensure fonts directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.local/share/fonts/Monaspace"
+    state: directory
+    mode: '0755'
+  when: not linux_nerd_font_dir.stat.exists
+
+- name: Download and unpack Monaspace Nerd Font
+  ansible.builtin.unarchive:
+    src: "{{ linux_nerd_font_url }}"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/share/fonts/Monaspace"
+    remote_src: true
+  when: not linux_nerd_font_dir.stat.exists
+
+- name: Rebuild font cache
+  ansible.builtin.command: fc-cache -f "{{ ansible_facts['user_dir'] }}/.local/share/fonts"
+  when: not linux_nerd_font_dir.stat.exists
+  changed_when: true

@@ -1,0 +1,30 @@
+---
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Check for renamed batcat binary
+  ansible.builtin.stat:
+    path: /usr/bin/batcat
+  register: linux_batcat_bin
+
+- name: Symlink batcat to bat
+  ansible.builtin.file:
+    src: /usr/bin/batcat
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin/bat"
+    state: link
+  when: linux_batcat_bin.stat.exists
+
+- name: Check for renamed fdfind binary
+  ansible.builtin.stat:
+    path: /usr/bin/fdfind
+  register: linux_fdfind_bin
+
+- name: Symlink fdfind -> fd
+  ansible.builtin.file:
+    src: /usr/bin/fdfind
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin/fd"
+    state: link
+  when: linux_fdfind_bin.stat.exists

@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-# Configuration
 REPO_URL="https://github.com/doubleddoge/dotfiles.git"
 DOTFILES_DIR="$HOME/dotfiles"
 
 echo "=== Linux Dotfiles Bootstrap ==="
 
-# 1. Install Prerequisites (Git & Ansible)
+# 1. Install Prerequisites
 if ! command -v git &> /dev/null; then
     echo "Installing Git..."
     if [ -f /etc/debian_version ]; then

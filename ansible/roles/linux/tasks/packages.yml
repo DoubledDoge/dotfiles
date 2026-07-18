@@ -1,0 +1,43 @@
+---
+- name: Update Apt Cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_facts['pkg_mgr'] == 'apt'
+
+- name: Install Common Packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ linux_common_packages }}"
+    state: present
+
+- name: Install Debian/Ubuntu Packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ linux_debian_packages }}"
+    state: present
+  when: ansible_facts['pkg_mgr'] == 'apt'
+
+- name: Install Arch Packages
+  become: true
+  community.general.pacman:
+    name: "{{ linux_arch_packages }}"
+    state: present
+    update_cache: true
+  when: ansible_facts['pkg_mgr'] == 'pacman'
+
+- name: Install Fedora Packages
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ linux_fedora_packages }}"
+    state: present
+    update_cache: true
+  when: ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: Ensure en_US.UTF-8 locale is generated (Debian/Ubuntu)
+  become: true
+  community.general.locale_gen:
+    name: en_US.UTF-8
+    state: present
+  when: ansible_facts['pkg_mgr'] == 'apt'

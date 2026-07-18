@@ -1,0 +1,79 @@
+---
+- name: Check if Oh-My-Posh is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/oh-my-posh
+  register: linux_omp_bin
+
+- name: Download Oh-My-Posh install script
+  ansible.builtin.get_url:
+    url: https://ohmyposh.dev/install.sh
+    dest: /tmp/ohmyposh-install.sh
+    mode: '0755'
+  when: not linux_omp_bin.stat.exists
+
+- name: Run Oh-My-Posh install script
+  become: true
+  ansible.builtin.command: bash /tmp/ohmyposh-install.sh -d /usr/local/bin
+  when: not linux_omp_bin.stat.exists
+  changed_when: true
+
+- name: Check if rustup/cargo is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo"
+  register: linux_cargo_bin
+
+- name: Download rustup install script
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-install.sh
+    mode: '0755'
+  when: not linux_cargo_bin.stat.exists
+
+- name: Run rustup install script (needed for cargo-only tools below)
+  ansible.builtin.command: sh /tmp/rustup-install.sh -y --default-toolchain stable
+  when: not linux_cargo_bin.stat.exists
+  changed_when: true
+
+- name: Install cargo-only tools (eza, delta, rip, fcp, dust, tre, topgrade, hyperfine, sd)
+  ansible.builtin.command: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo install {{ item.crate }}"
+  args:
+    creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/{{ item.bin }}"
+  loop: "{{ linux_cargo_packages }}"
+  loop_control:
+    label: "{{ item.crate }}"
+
+- name: Check if bat-extras is already installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/batman"
+  register: linux_bat_extras_bin
+
+- name: Clone bat-extras
+  ansible.builtin.git:
+    repo: "{{ linux_bat_extras_repo }}"
+    dest: /tmp/bat-extras
+    version: master
+    recursive: true
+  when: not linux_bat_extras_bin.stat.exists
+
+- name: Build and install bat-extras (batman, batgrep, batdiff, etc.)
+  ansible.builtin.command: ./build.sh --install --prefix={{ ansible_facts['env']['HOME'] }}/.local
+  args:
+    chdir: /tmp/bat-extras
+  when: not linux_bat_extras_bin.stat.exists
+  changed_when: true
+
+- name: Attempt to install thefuck via pip (best-effort - unmaintained upstream)
+  ansible.builtin.pip:
+    name: thefuck
+    extra_args: --user --break-system-packages
+  register: linux_thefuck_install
+  ignore_errors: true
+
+- name: Warn if thefuck failed to install
+  ansible.builtin.debug:
+    msg: >-
+      thefuck failed to install - it's an unmaintained project and often breaks
+      on newer Python releases. The `fuck`/`fk` aliases will simply stay
+      inactive (they're already guarded by a command -v check in
+      shell-common/functions.sh).
+  when: linux_thefuck_install is failed

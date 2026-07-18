@@ -1,0 +1,154 @@
+---
+# ========================================
+# GITHUB CLI
+# ========================================
+
+- name: Check if gh CLI is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/gh"
+  register: linux_gh_bin
+
+- name: Determine latest gh CLI release tag via redirect
+  ansible.builtin.uri:
+    url: "https://github.com/cli/cli/releases/latest"
+    follow_redirects: none
+    status_code: 302
+  register: linux_gh_redirect
+  when: not linux_gh_bin.stat.exists
+
+- name: Set gh CLI version fact
+  ansible.builtin.set_fact:
+    linux_gh_version: "{{ linux_gh_redirect.location | basename | regex_replace('^v', '') }}"
+  when: not linux_gh_bin.stat.exists
+
+- name: Download and unpack gh CLI
+  ansible.builtin.unarchive:
+    src: "https://github.com/cli/cli/releases/download/v{{ linux_gh_version }}/gh_{{ linux_gh_version }}_linux_amd64.tar.gz"
+    dest: /tmp
+    remote_src: true
+  when: not linux_gh_bin.stat.exists
+
+- name: Install gh binary to ~/.local/bin
+  ansible.builtin.copy:
+    src: "/tmp/gh_{{ linux_gh_version }}_linux_amd64/bin/gh"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin/gh"
+    mode: '0755'
+    remote_src: true
+  when: not linux_gh_bin.stat.exists
+
+# ========================================
+# YAZI, ZELLIJ, ONEFETCH
+# ========================================
+
+- name: Check if yazi is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/yazi"
+  register: linux_yazi_bin
+
+- name: Download and unpack yazi
+  ansible.builtin.unarchive:
+    src: "{{ linux_yazi_url }}"
+    dest: /tmp
+    remote_src: true
+  when: not linux_yazi_bin.stat.exists
+
+- name: Install yazi + ya binaries to ~/.local/bin
+  ansible.builtin.copy:
+    src: "/tmp/yazi-x86_64-unknown-linux-gnu/{{ item }}"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin/{{ item }}"
+    mode: '0755'
+    remote_src: true
+  loop:
+    - yazi
+    - ya
+  when: not linux_yazi_bin.stat.exists
+
+- name: Check if zellij is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/zellij"
+  register: linux_zellij_bin
+
+- name: Download and unpack zellij
+  ansible.builtin.unarchive:
+    src: "{{ linux_zellij_url }}"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin"
+    remote_src: true
+  when: not linux_zellij_bin.stat.exists
+
+- name: Ensure zellij is executable
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/zellij"
+    mode: '0755'
+  when: not linux_zellij_bin.stat.exists
+
+- name: Check if onefetch is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/onefetch"
+  register: linux_onefetch_bin
+
+- name: Download and unpack onefetch
+  ansible.builtin.unarchive:
+    src: "{{ linux_onefetch_url }}"
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin"
+    remote_src: true
+  when: not linux_onefetch_bin.stat.exists
+
+- name: Ensure onefetch is executable
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/onefetch"
+    mode: '0755'
+  when: not linux_onefetch_bin.stat.exists
+
+# ========================================
+# LAZYGIT
+# ========================================
+
+- name: Check if lazygit is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts['user_dir'] }}/.local/bin/lazygit"
+  register: linux_lazygit_bin
+
+- name: Determine latest lazygit release tag via redirect
+  ansible.builtin.uri:
+    url: "https://github.com/jesseduffield/lazygit/releases/latest"
+    follow_redirects: none
+    status_code: 302
+  register: linux_lazygit_redirect
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Set lazygit version fact
+  ansible.builtin.set_fact:
+    linux_lazygit_version: "{{ linux_lazygit_redirect.location | basename | regex_replace('^v', '') }}"
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Set lazygit release asset path
+  ansible.builtin.set_fact:
+    linux_lazygit_path: "v{{ linux_lazygit_version }}/lazygit_{{ linux_lazygit_version }}_Linux_x86_64.tar.gz"
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Set lazygit download URL
+  ansible.builtin.set_fact:
+    linux_lazygit_download_url: "https://github.com/jesseduffield/lazygit/releases/download/{{ linux_lazygit_path }}"
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Ensure lazygit extraction directory exists
+  ansible.builtin.file:
+    path: /tmp/lazygit
+    state: directory
+    mode: '0755'
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Download and unpack lazygit
+  ansible.builtin.unarchive:
+    src: "{{ linux_lazygit_download_url }}"
+    dest: /tmp/lazygit
+    remote_src: true
+  when: not linux_lazygit_bin.stat.exists
+
+- name: Install lazygit to ~/.local/bin
+  ansible.builtin.copy:
+    src: /tmp/lazygit/lazygit
+    dest: "{{ ansible_facts['user_dir'] }}/.local/bin/lazygit"
+    mode: '0755'
+    remote_src: true
+  when: not linux_lazygit_bin.stat.exists

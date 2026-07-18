@@ -13,6 +13,7 @@ linux_common_packages:
   - jq
   - direnv
   - micro
+  - bash-completion
 
 linux_debian_packages:
   - build-essential
@@ -22,6 +23,9 @@ linux_debian_packages:
   - p7zip-full
   - less
   - python3-pip
+  - gnupg
+  - openssh-client
+  - locales
 
 linux_arch_packages:
   - base-devel
@@ -32,6 +36,8 @@ linux_arch_packages:
   - less
   - lesspipe
   - python-pip
+  - gnupg
+  - openssh
 
 linux_fedora_packages:
   - '@development-tools'
@@ -42,6 +48,8 @@ linux_fedora_packages:
   - p7zip-plugins
   - less
   - python3-pip
+  - gnupg2
+  - openssh-clients
 
 linux_cargo_packages:
   - crate: eza
@@ -62,9 +70,3 @@ linux_cargo_packages:
     bin: hyperfine
   - crate: sd
     bin: sd
-
-linux_nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
-linux_bat_extras_repo: "https://github.com/eth-p/bat-extras.git"
-linux_yazi_url: "https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip"
-linux_zellij_url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
-linux_onefetch_url: "https://github.com/o2sh/onefetch/releases/latest/download/onefetch-linux.tar.gz"

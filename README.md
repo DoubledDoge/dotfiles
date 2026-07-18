@@ -17,7 +17,8 @@ curl -fsSL https://raw.githubusercontent.com/doubleddoge/dotfiles/main/bootstrap
 |-------------|------------------------------------------------------------------|
 | `git`       | `.gitconfig`, global gitignore, commit message template          |
 | `editorconfig` | Universal indent/whitespace rules for any editor              |
-| `bash` / `zsh` | Shell config, aliases, functions, history, completion         |
+| `shell-common` | Env vars, aliases, and functions shared by bash and zsh, plus login-shell env setup |
+| `bash` / `zsh` | Shell-specific config: history, completion, keybindings, plugin managers |
 | `fzf-git`   | Shared fzf-powered git browser, used by both shells              |
 | `kitty`     | Terminal emulator config (Rosé Pine theme + Monaspace Nerd Font) |
 | `ohmyposh`  | Prompt theme                                                     |
@@ -27,11 +28,17 @@ curl -fsSL https://raw.githubusercontent.com/doubleddoge/dotfiles/main/bootstrap
 
 ```
 dotfiles/
-├── bootstrap/install.sh     # entry point, run via curl
-├── ansible/                 # playbook + role that installs packages and runs stow
-└── dotfiles/                # stow packages
+├── bootstrap/install.sh
+├── ansible/
+│   └── roles/linux/
+│       ├── tasks/
+│       │
+│       └── vars/
+└── dotfiles/
     ├── git/
     ├── editorconfig/
+    ├── shell-common/
+    │
     ├── bash/
     ├── zsh/
     ├── kitty/
@@ -48,18 +55,3 @@ If you edit a config and want to re-link without rerunning all of Ansible:
 cd ~/dotfiles/dotfiles
 stow -v -R -t "$HOME" --no-folding <package>
 ```
-
-## Notes
-
-- First run will take a while. It bootstraps `rustup`, then compiles nine Rust tools from
-  source via `cargo install`, plus builds `bat-extras` from its own build script and downloads
-  a handful of binary releases (`gh`, `yazi`, `zellij`, `onefetch`, `lazygit`). Subsequent runs
-  are fast as every install task checks for the binary first and skips if it's already there.
-- `EDITOR` is set to `micro`, falling back to `nano` if it's somehow missing, rather than a GUI
-  editor, so tools like `git commit` and `crontab -e` don't hang waiting on a window that isn't
-  there over SSH. Neither vim nor Neovim are used anywhere in this repo with my own separate IDE that handles
-  all actual code editing; `micro`/`nano` cover quick terminal edits only. (Not a neovim user yet though lol)
-- The `z` alias for `cd` (via `zoxide`) only activates if `zoxide` is actually installed.
-- Background job count in the prompt comes from a small shell hook (`BG_JOBS`), not a native
-  oh-my-posh segment where it runs as a separate process per prompt render and has no direct
-  view into the shell's job table.
