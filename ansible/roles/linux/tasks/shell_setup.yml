@@ -31,6 +31,9 @@
     - .zprofile
     - .config/zsh/.zshrc
     - .config/zsh/.zprofile
+    - .config/zsh/.zshenv
+    - .bash_logout
+    - .config/zsh/.zlogout
 
 - name: Stow all configuration packages
   ansible.builtin.command:
