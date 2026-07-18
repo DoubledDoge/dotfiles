@@ -34,7 +34,7 @@ jobs:
           command: cd ansible && ansible-galaxy collection install -r requirements.yml
 
       - name: Run ansible-lint
-        run: ansible-lint --profile production setup.yml
+        run: ansible-lint setup.yml
 
   shellcheck:
     name: ShellCheck

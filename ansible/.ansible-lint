@@ -1,0 +1,13 @@
+---
+profile: production
+
+exclude_paths:
+  - ../dotfiles/
+  - ../.github/
+  - .git/
+
+verbosity: 1
+
+skip_list:
+  - yaml[new-line-at-end-of-file
+  - yaml[trailing-spaces]

@@ -47,4 +47,3 @@
     - kitty
   register: linux_stow_result
   changed_when: "'LINK' in linux_stow_result.stderr"
-  
