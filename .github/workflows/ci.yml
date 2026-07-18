@@ -26,10 +26,12 @@ jobs:
         run: pip install ansible-core ansible-lint
 
       - name: Install required Ansible collections
-        run: ansible-galaxy collection install -r requirements.yml
-
-      - name: Verify community.general collection is installed
-        run: ansible-galaxy collection list community.general
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          retry_wait_seconds: 15
+          command: cd ansible && ansible-galaxy collection install -r requirements.yml
 
       - name: Run ansible-lint
         run: ansible-lint --profile production setup.yml
