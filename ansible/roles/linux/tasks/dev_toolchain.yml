@@ -29,12 +29,12 @@
     mode: '0755'
   when: not linux_cargo_bin.stat.exists
 
-- name: Run rustup install script (needed for cargo-only tools below)
-  ansible.builtin.command: sh /tmp/rustup-install.sh -y --default-toolchain stable
+- name: Run rustup install script
+  ansible.builtin.command: sh /tmp/rustup-install.sh -y --default-toolchain stable --no-modify-path
   when: not linux_cargo_bin.stat.exists
   changed_when: true
 
-- name: Install cargo-only tools (eza, delta, rip, fcp, dust, tre, topgrade, hyperfine, sd)
+- name: Install cargo-only tools
   ansible.builtin.command: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo install {{ item.crate }}"
   args:
     creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/{{ item.bin }}"
@@ -55,7 +55,7 @@
     recursive: true
   when: not linux_bat_extras_bin.stat.exists
 
-- name: Build and install bat-extras (batman, batgrep, batdiff, etc.)
+- name: Build and install bat-extras
   ansible.builtin.command: ./build.sh --install --prefix={{ ansible_facts['env']['HOME'] }}/.local
   args:
     chdir: /tmp/bat-extras
