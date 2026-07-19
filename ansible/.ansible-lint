@@ -9,5 +9,5 @@ exclude_paths:
 verbosity: 1
 
 skip_list:
-  - yaml[new-line-at-end-of-file
+  - yaml[new-line-at-end-of-file]
   - yaml[trailing-spaces]
