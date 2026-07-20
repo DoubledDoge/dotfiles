@@ -35,6 +35,7 @@
     - .bash_logout
     - .config/zsh/.zlogout
     - .profile
+    - .config/topgrade.toml
 
 - name: Stow all configuration packages
   ansible.builtin.command:
@@ -49,5 +50,6 @@
     - bash
     - zsh
     - kitty
+    - topgrade
   register: linux_stow_result
   changed_when: "'LINK' in linux_stow_result.stderr"

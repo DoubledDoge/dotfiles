@@ -1,0 +1,23 @@
+[misc]
+pre_sudo = true
+
+cleanup = true
+
+assume_yes = true
+
+
+[linux]
+arch_package_manager = "paru"
+
+show_arch_news = true
+
+
+[git]
+arguments = "--rebase --autostash"
+
+[cargo]
+git = true
+
+
+[rustup]
+channels = ["stable"]

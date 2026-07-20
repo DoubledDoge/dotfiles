@@ -27,6 +27,31 @@
     update_cache: true
   when: ansible_facts['pkg_mgr'] == 'pacman'
 
+- name: Check if paru is already installed
+  ansible.builtin.stat:
+    path: /usr/bin/paru
+  register: linux_paru_bin
+  when: ansible_facts['pkg_mgr'] == 'pacman'
+
+- name: Clone paru from the AUR
+  ansible.builtin.git:
+    repo: https://aur.archlinux.org/paru.git
+    dest: /tmp/paru-build
+  when:
+    - ansible_facts['pkg_mgr'] == 'pacman'
+    - linux_arch_install_paru
+    - not linux_paru_bin.stat.exists
+
+- name: Build and install paru
+  ansible.builtin.command: makepkg -si --noconfirm
+  args:
+    chdir: /tmp/paru-build
+    creates: /usr/bin/paru
+  when:
+    - ansible_facts['pkg_mgr'] == 'pacman'
+    - linux_arch_install_paru
+    - not linux_paru_bin.stat.exists
+
 - name: Install Fedora Packages
   become: true
   ansible.builtin.dnf:

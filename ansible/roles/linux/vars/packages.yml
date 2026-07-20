@@ -1,4 +1,6 @@
 ---
+linux_arch_install_paru: true
+
 linux_common_packages:
   - git
   - zsh
