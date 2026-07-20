@@ -182,7 +182,11 @@ add-zsh-hook precmd _update_bg_jobs
 
 ZSHRC_PATH="${ZDOTDIR:-$HOME}/.zshrc"
 if [[ "$ZSHRC_PATH" -nt "$ZSHRC_PATH.zwc" ]] || [[ ! -s "$ZSHRC_PATH.zwc" ]]; then
-    zcompile "$ZSHRC_PATH"
+    if mkdir "$ZSHRC_PATH.zwc.lock" 2>/dev/null; then
+        zcompile "$ZSHRC_PATH" "$ZSHRC_PATH.zwc.$$" 2>/dev/null \
+            && mv -f "$ZSHRC_PATH.zwc.$$" "$ZSHRC_PATH.zwc"
+        rmdir "$ZSHRC_PATH.zwc.lock" 2>/dev/null
+    fi
 fi
 
 # ========================================
@@ -195,5 +199,7 @@ TRAPEXIT() {
     fi
 }
 
-export TMOUT=500
-readonly TMOUT
+if [[ -z "${TMOUT-}" ]]; then
+    export TMOUT=500
+    readonly TMOUT
+fi
