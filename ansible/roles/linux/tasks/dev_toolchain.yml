@@ -35,12 +35,12 @@
   changed_when: true
 
 - name: Install cargo-only tools
-  ansible.builtin.command: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo install {{ item.crate }}"
+  ansible.builtin.command: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/cargo install {{ item.cargo }}"
   args:
     creates: "{{ ansible_facts['env']['HOME'] }}/.cargo/bin/{{ item.bin }}"
   loop: "{{ linux_cargo_packages }}"
   loop_control:
-    label: "{{ item.crate }}"
+    label: "{{ item.cargo }}"
 
 - name: Check if bat-extras is already installed
   ansible.builtin.stat:
@@ -62,7 +62,7 @@
   when: not linux_bat_extras_bin.stat.exists
   changed_when: true
 
-- name: Attempt to install thefuck via pip (best-effort - unmaintained upstream)
+- name: Attempt to install thefuck via pip
   ansible.builtin.pip:
     name: thefuck
     extra_args: --user --break-system-packages
