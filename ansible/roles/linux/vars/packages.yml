@@ -80,5 +80,5 @@ linux_cargo_packages:
     bin: sd
   - crate: cargo-update
     bin: cargo-update
-  - cargo: cargo-cache
+  - crate: cargo-cache
     bin: cargo-cache
