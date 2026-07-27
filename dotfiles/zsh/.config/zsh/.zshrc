@@ -37,14 +37,11 @@ zinit wait lucid for \
 zinit wait lucid for \
     OMZP::git \
     OMZP::sudo \
-    OMZP::archlinux \
     OMZP::command-not-found \
-    OMZP::common-aliases \
     OMZP::dotnet \
     OMZP::cp \
     OMZP::gh \
     OMZP::git-commit \
-    OMZP::github \
     OMZP::npm \
     OMZP::vscode
 

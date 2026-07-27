@@ -28,6 +28,8 @@ linux_debian_packages:
   - gnupg
   - openssh-client
   - locales
+  - libssl-dev
+  - pkg-config
 
 linux_arch_packages:
   - base-devel
@@ -40,6 +42,8 @@ linux_arch_packages:
   - python-pip
   - gnupg
   - openssh
+  - pkgconf
+  - openssl
 
 linux_fedora_packages:
   - '@development-tools'
@@ -52,6 +56,8 @@ linux_fedora_packages:
   - python3-pip
   - gnupg2
   - openssh-clients
+  - pkgconf
+  - openssl-devel
 
 linux_cargo_packages:
   - crate: eza
@@ -72,3 +78,7 @@ linux_cargo_packages:
     bin: hyperfine
   - crate: sd
     bin: sd
+  - crate: cargo-update
+    bin: cargo-update
+  - cargo: cargo-cache
+    bin: cargo-cache
