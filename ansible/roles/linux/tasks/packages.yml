@@ -37,11 +37,12 @@
   ansible.builtin.git:
     repo: https://aur.archlinux.org/paru.git
     dest: /tmp/paru-build
+    version: master
   when:
     - ansible_facts['pkg_mgr'] == 'pacman'
     - linux_arch_install_paru
     - not linux_paru_bin.stat.exists
-
+    
 - name: Build and install paru
   ansible.builtin.command: makepkg -si --noconfirm
   args:
