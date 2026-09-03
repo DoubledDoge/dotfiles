@@ -5,10 +5,11 @@
 
 [core]
 	compression = 9
-	whitespace = error
+	whitespace = blank-at-eol,blank-at-eof,space-before-tab
 	preloadindex = true
 	pager = delta
 	excludesfile = ~/.gitignore_global
+	attributesFile = ~/.gitattributes_global
 
 [advice]
 	addEmptyPathspec = false
@@ -27,11 +28,8 @@
 
 [diff]
 	context = 3
-	renames = copies
+	renames = true
 	interHunkContext = 10
-	algorithm = histogram
-	colorMoved = default
-	colorMovedWS = allow-indentation-change
 
 [color "diff"]
 	meta = black bold
@@ -47,7 +45,6 @@
 	followTags = true
 
 [pull]
-	default = current
 	rebase = true
 
 [rebase]
@@ -56,7 +53,6 @@
 
 [rerere]
 	enabled = true
-	autoupdate = true
 
 [log]
 	abbrevCommit = true
@@ -97,7 +93,6 @@
 [commit]
 	template = ~/.gitmessage
 	gpgSign = true
-	verbose = true
 
 [credential "https://github.com"]
 	helper = 
@@ -117,13 +112,9 @@
 	cleanup = !git branch --merged | grep -v '*' | xargs git branch -d
 	remotes = remote -v
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
-	uns = restore --staged
-	amend = commit --amend --no-edit
-	undo = reset --soft HEAD~1
-	last = log -1 HEAD --stat
 
 [help]
 	autocorrect = 15
-
+	
 [color]
 	ui = 1

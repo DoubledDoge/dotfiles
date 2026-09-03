@@ -1,14 +1,20 @@
-.directory
-.Trash-*
-nohup.out
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
 
+# Editor files
 .vscode/
+.vs/
 .idea/
 *.swp
 *.swo
 *~
 
+# Build artifacts
 node_modules/
 dist/
 build/
+bin/
+obj/
 *.log
