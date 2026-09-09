@@ -1,5 +1,0 @@
-- name: Dotfiles Bootstrap
-  hosts: local
-  become: false
-  roles:
-    - linux

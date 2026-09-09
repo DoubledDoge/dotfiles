@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+mkdir -p "$HOME/.local/bin"
+
+latest_release_tag() {
+    local repo="$1"
+    curl -fsSI "https://github.com/${repo}/releases/latest" \
+        | grep -i '^location:' \
+        | sed -E 's#.*/tag/v?([^/[:space:]]+).*#\1#' \
+        | tr -d '\r'
+}
+
+if [ ! -x "$HOME/.local/bin/gh" ]; then
+    echo "==> Installing gh CLI"
+    ver="$(latest_release_tag cli/cli)"
+    tmpdir="$(mktemp -d)"
+    curl -fsSL "https://github.com/cli/cli/releases/download/v${ver}/gh_${ver}_linux_amd64.tar.gz" \
+        | tar -xz -C "$tmpdir"
+    cp "$tmpdir/gh_${ver}_linux_amd64/bin/gh" "$HOME/.local/bin/gh"
+    chmod +x "$HOME/.local/bin/gh"
+    rm -rf "$tmpdir"
+else
+    echo "==> gh already installed, skipping"
+fi
+
+if [ ! -x "$HOME/.local/bin/yazi" ]; then
+    echo "==> Installing yazi"
+    tmpdir="$(mktemp -d)"
+    curl -fsSL "{{ .tools.yazi_url }}" -o "$tmpdir/yazi.zip"
+    unzip -q "$tmpdir/yazi.zip" -d "$tmpdir"
+    cp "$tmpdir/yazi-x86_64-unknown-linux-gnu/yazi" "$HOME/.local/bin/yazi"
+    cp "$tmpdir/yazi-x86_64-unknown-linux-gnu/ya" "$HOME/.local/bin/ya"
+    chmod +x "$HOME/.local/bin/yazi" "$HOME/.local/bin/ya"
+    rm -rf "$tmpdir"
+else
+    echo "==> yazi already installed, skipping"
+fi
+
+if [ ! -x "$HOME/.local/bin/zellij" ]; then
+    echo "==> Installing zellij"
+    curl -fsSL "{{ .tools.zellij_url }}" | tar -xz -C "$HOME/.local/bin"
+    chmod +x "$HOME/.local/bin/zellij"
+else
+    echo "==> zellij already installed, skipping"
+fi
+
+if [ ! -x "$HOME/.local/bin/onefetch" ]; then
+    echo "==> Installing onefetch"
+    curl -fsSL "{{ .tools.onefetch_url }}" | tar -xz -C "$HOME/.local/bin"
+    chmod +x "$HOME/.local/bin/onefetch"
+else
+    echo "==> onefetch already installed, skipping"
+fi
+
+if [ ! -x "$HOME/.local/bin/lazygit" ]; then
+    echo "==> Installing lazygit"
+    ver="$(latest_release_tag jesseduffield/lazygit)"
+    tmpdir="$(mktemp -d)"
+    curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${ver}/lazygit_${ver}_Linux_x86_64.tar.gz" \
+        | tar -xz -C "$tmpdir"
+    cp "$tmpdir/lazygit" "$HOME/.local/bin/lazygit"
+    chmod +x "$HOME/.local/bin/lazygit"
+    rm -rf "$tmpdir"
+else
+    echo "==> lazygit already installed, skipping"
+fi
+
+echo "==> Release binary install complete"

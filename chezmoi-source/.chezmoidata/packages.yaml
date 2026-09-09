@@ -1,0 +1,87 @@
+packages:
+  common:
+    - git
+    - zsh
+    - stow
+    - fzf
+    - unzip
+    - curl
+    - ripgrep
+    - zoxide
+    - duf
+    - btop
+    - jq
+    - direnv
+    - micro
+    - bash-completion
+  debian:
+    - build-essential
+    - kitty
+    - bat
+    - fd-find
+    - p7zip-full
+    - less
+    - python3-pip
+    - gnupg
+    - openssh-client
+    - locales
+    - libssl-dev
+    - pkg-config
+  arch:
+    - base-devel
+    - kitty
+    - bat
+    - fd
+    - p7zip
+    - less
+    - lesspipe
+    - python-pip
+    - gnupg
+    - openssh
+    - pkgconf
+    - openssl
+  fedora:
+    - "@development-tools"
+    - kitty
+    - bat
+    - fd-find
+    - p7zip
+    - p7zip-plugins
+    - less
+    - python3-pip
+    - gnupg2
+    - openssh-clients
+    - pkgconf
+    - openssl-devel
+  cargo:
+    - crate: eza
+      bin: eza
+    - crate: git-delta
+      bin: delta
+    - crate: rip2
+      bin: rip
+    - crate: fcp
+      bin: fcp
+    - crate: du-dust
+      bin: dust
+    - crate: tre-command
+      bin: tre
+    - crate: topgrade
+      bin: topgrade
+    - crate: hyperfine
+      bin: hyperfine
+    - crate: sd
+      bin: sd
+    - crate: cargo-update
+      bin: cargo-update
+    - crate: cargo-cache
+      bin: cargo-cache
+
+tools:
+  nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
+  bat_extras_repo: "https://github.com/eth-p/bat-extras.git"
+  yazi_url: "https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.zip"
+  zellij_url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+  onefetch_url: "https://github.com/o2sh/onefetch/releases/latest/download/onefetch-linux.tar.gz"
+
+archInstallParu: true

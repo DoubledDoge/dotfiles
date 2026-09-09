@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+{{ template "detect-pkg-mgr.sh.tmpl" . }}
+
+echo "==> Detected package manager: $DOTFILES_PKG_MGR"
+
+case "$DOTFILES_PKG_MGR" in
+    apt)
+        sudo apt update
+        sudo apt install -y \
+            {{ range .packages.common }}{{ . }} {{ end }}\
+            {{ range .packages.debian }}{{ . }} {{ end }}
+        sudo locale-gen en_US.UTF-8
+        ;;
+    pacman)
+        sudo pacman -Sy --needed --noconfirm \
+            {{ range .packages.common }}{{ . }} {{ end }}\
+            {{ range .packages.arch }}{{ . }} {{ end }}
+
+        {{ if .archInstallParu }}
+        if ! command -v paru >/dev/null 2>&1; then
+            echo "==> Bootstrapping paru from AUR"
+            tmpdir="$(mktemp -d)"
+            trap 'rm -rf "$tmpdir"' EXIT
+            git clone --branch master https://aur.archlinux.org/paru.git "$tmpdir/paru"
+            (cd "$tmpdir/paru" && makepkg -si --noconfirm)
+        else
+            echo "==> paru already installed, skipping"
+        fi
+        {{ end }}
+        ;;
+    dnf)
+        sudo dnf install -y \
+            {{ range .packages.common }}{{ . }} {{ end }}\
+            {{ range .packages.fedora }}{{ . }} {{ end }}
+        ;;
+esac
+
+echo "==> OS package install complete"

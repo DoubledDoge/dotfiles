@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# ========================================
+# SHARED ALIASES
+# ========================================
+
+alias ls='eza --color=always --git --icons=always --group-directories-first'
+alias ll='eza -l --color=always --git --icons=always --group-directories-first'
+alias la='eza -la --color=always --git --icons=always --group-directories-first'
+alias lsd='eza -d --color=always --git --icons=always --group-directories-first'
+alias grep='batgrep'
+alias find='fd'
+alias cat='bat --paging=never'
+alias less='bat'
+alias rm='rip'
+alias del='rip'
+alias cp='fcp'
+alias mv='mv -i'
+alias tree='tre'
+alias man='batman'
+alias top='btop'
+alias df='duf'
+alias du='dust'
+alias nano='micro'
+alias zshrc='${=EDITOR} ~/.zshrc'
+alias h='history'
+alias p='ps -f'
+
+alias c='clear'
+alias update='topgrade'
+alias ofetch='onefetch'
+alias lzg='lazygit'
+alias zj='zellij'
+alias bench='hyperfine'
+alias sr='sd'
+alias denv='direnv edit .'
+alias fzf='fzf --preview="bat --color=always --style=numbers --line-range=:500 {}" --height 60% --border --layout=reverse'
+
+alias gst='git status --short --branch'
+alias glog='git log --oneline --graph --decorate --all'
+alias gdiff='git diff --color-words'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'
+
+alias h='history'
+alias j='jobs -l'
+alias ports='netstat -tulanp'
+alias mv='mv -i'
+alias help='help 2>&1 | bat --language=help --style=plain 2>/dev/null || help'

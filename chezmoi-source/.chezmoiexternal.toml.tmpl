@@ -1,0 +1,50 @@
+{{ $lazygitTag := output "sh" "-c" "curl -fsSI https://github.com/jesseduffield/lazygit/releases/latest | grep -i '^location:' | sed -E 's#.*/tag/v?([^/[:space:]]+).*#\\1#' | tr -d '\\r\\n'" }}
+{{ $ghTag := output "sh" "-c" "curl -fsSI https://github.com/cli/cli/releases/latest | grep -i '^location:' | sed -E 's#.*/tag/v?([^/[:space:]]+).*#\\1#' | tr -d '\\r\\n'" }}
+
+[".local/bin/zellij"]
+    type = "archive-file"
+    url = "{{ .tools.zellij_url }}"
+    path = "zellij"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/onefetch"]
+    type = "archive-file"
+    url = "{{ .tools.onefetch_url }}"
+    path = "./onefetch"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/yazi"]
+    type = "archive-file"
+    url = "{{ .tools.yazi_url }}"
+    path = "yazi-x86_64-unknown-linux-gnu/yazi"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/ya"]
+    type = "archive-file"
+    url = "{{ .tools.yazi_url }}"
+    path = "yazi-x86_64-unknown-linux-gnu/ya"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/lazygit"]
+    type = "archive-file"
+    url = "https://github.com/jesseduffield/lazygit/releases/download/v{{ $lazygitTag }}/lazygit_{{ $lazygitTag }}_Linux_x86_64.tar.gz"
+    path = "lazygit"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/gh"]
+    type = "archive-file"
+    url = "https://github.com/cli/cli/releases/download/v{{ $ghTag }}/gh_{{ $ghTag }}_linux_amd64.tar.gz"
+    path = "gh_{{ $ghTag }}_linux_amd64/bin/gh"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/share/fonts/Monaspace"]
+    type = "archive"
+    url = "{{ .tools.nerd_font_url }}"
+    exact = false
+    refreshPeriod = "720h"
