@@ -2,7 +2,6 @@ packages:
   common:
     - git
     - zsh
-    - stow
     - fzf
     - unzip
     - curl
