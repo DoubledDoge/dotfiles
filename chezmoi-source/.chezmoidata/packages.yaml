@@ -20,7 +20,7 @@ packages:
     - fd-find
     - p7zip-full
     - less
-    - python3-pip
+    - nala
     - gnupg
     - openssh-client
     - locales
@@ -34,7 +34,6 @@ packages:
     - p7zip
     - less
     - lesspipe
-    - python-pip
     - gnupg
     - openssh
     - pkgconf
@@ -47,7 +46,6 @@ packages:
     - p7zip
     - p7zip-plugins
     - less
-    - python3-pip
     - gnupg2
     - openssh-clients
     - pkgconf
