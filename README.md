@@ -28,7 +28,7 @@ curl -fsSL https://raw.githubusercontent.com/doubleddoge/dotfiles/main/install.s
 
 ```
 dotfiles/
-├── bootstrap-install.sh
+├── install.sh
 └── chezmoi-source/
     ├── .chezmoidata/packages.yaml       # package lists + tool URLs, per distro
     ├── .chezmoitemplates/               # shared partials (OS detection, etc.)

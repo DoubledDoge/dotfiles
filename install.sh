@@ -9,7 +9,7 @@ if ! command -v git >/dev/null 2>&1; then
     if [ -f /etc/debian_version ]; then
         sudo apt update && sudo apt install -y git
     elif [ -f /etc/arch-release ]; then
-        sudo pacman -Sy --noconfirm git
+        sudo pacman -Syu --noconfirm git
     elif [ -f /etc/fedora-release ]; then
         sudo dnf install -y git
     fi
