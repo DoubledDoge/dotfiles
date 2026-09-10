@@ -18,7 +18,7 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: '.'
-          additional_files: bootstrap-install.sh
+          additional_files: install.sh
           ignore_paths: chezmoi-source/dot_config/zsh chezmoi-source/dot_config/fzf-git chezmoi-source/.chezmoiscripts
           severity: warning
         env:
