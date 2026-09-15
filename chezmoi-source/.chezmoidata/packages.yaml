@@ -13,12 +13,14 @@ packages:
     - direnv
     - micro
     - bash-completion
+    - 7zip
+    - poppler
+    - ffmpeg
   debian:
     - build-essential
     - kitty
     - bat
     - fd-find
-    - p7zip-full
     - less
     - nala
     - gnupg
@@ -31,7 +33,6 @@ packages:
     - kitty
     - bat
     - fd
-    - p7zip
     - less
     - lesspipe
     - gnupg
@@ -43,8 +44,6 @@ packages:
     - kitty
     - bat
     - fd-find
-    - p7zip
-    - p7zip-plugins
     - less
     - gnupg2
     - openssh-clients
@@ -73,6 +72,8 @@ packages:
       bin: cargo-update
     - crate: cargo-cache
       bin: cargo-cache
+    - crate: resvg
+      bin: resvg
 
 tools:
   nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
