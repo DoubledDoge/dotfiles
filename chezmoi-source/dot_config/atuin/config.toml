@@ -1,0 +1,40 @@
+dialect = "uk"
+
+update_check = false
+
+search_mode = "fulltext"
+
+filter_mode = "global"
+
+style = "compact"
+
+invert = true
+
+show_preview = true
+
+max_preview_height = 4
+
+show_help = true
+
+show_tabs = true
+
+auto_hide_height = 8
+
+exit_mode = "return-original"
+
+history_filter = [
+   "^exit",
+   "^history",
+   "^ls",
+   "^la",
+   "^ll",
+   "^pwd",
+   "^clear",
+]
+
+store_failed = false
+
+enter_accept = true
+
+[logs]
+enabled = false

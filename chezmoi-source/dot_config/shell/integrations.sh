@@ -23,6 +23,10 @@ if [ -f "$HOME/.config/fzf-git/fzf-git.sh" ]; then
     . "$HOME/.config/fzf-git/fzf-git.sh"
 fi
 
+if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init "$__DOTFILES_SHELL_NAME")"
+fi
+
 # ========================================
 # PROMPT INITIALIZATION
 # ========================================
