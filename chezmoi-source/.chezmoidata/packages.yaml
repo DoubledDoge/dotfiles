@@ -15,6 +15,7 @@ packages:
     - bash-completion
     - 7zip
     - ffmpeg
+    - tealdeer
   debian:
     - build-essential
     - kitty
