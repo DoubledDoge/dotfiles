@@ -18,17 +18,14 @@ __DOTFILES_SHELL_NAME="bash"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 mkdir -p "$XDG_CONFIG_HOME/bash"
 
-HISTSIZE=10000
-HISTFILESIZE=20000
-HISTFILE="${XDG_CONFIG_HOME}/bash/bash_history"
-HISTCONTROL=ignoreboth:erasedups
-HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help:clear:history"
-HISTTIMEFORMAT='%F %T '
+# Disable history
+set +o history
+HISTSIZE=0
+HISTFILESIZE=0
+unset HISTFILE   
 
-shopt -s histappend
 shopt -s checkwinsize
 shopt -s expand_aliases
-shopt -s cmdhist
 shopt -s dotglob
 shopt -s extglob
 shopt -s globstar

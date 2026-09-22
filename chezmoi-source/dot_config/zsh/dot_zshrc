@@ -46,28 +46,13 @@ zinit wait lucid for \
     OMZP::vscode
 
 # ========================================
-# HISTORY CONFIGURATION
-# ========================================
-
-HISTSIZE=10000
-SAVEHIST=10000
-mkdir -p "${HOME}/.config/zsh"
-HISTFILE="${HOME}/.config/zsh/zsh_history"
-
-setopt EXTENDED_HISTORY
-setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_FIND_NO_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_SAVE_NO_DUPS
-setopt HIST_VERIFY
-setopt SHARE_HISTORY
-setopt APPEND_HISTORY
-
-# ========================================
 # ZSH OPTIONS & BEHAVIOR
 # ========================================
+
+# Disable history
+unset HISTFILE
+export HISTSIZE=0
+export SAVEHIST=0  
 
 setopt AUTO_CD
 setopt AUTO_PUSHD
@@ -82,10 +67,7 @@ setopt EXTENDED_GLOB
 # ========================================
 
 bindkey -e
-bindkey '^p' history-search-backward
-bindkey '^n' history-search-forward
 bindkey '^[w' kill-region
-bindkey '^r' history-incremental-search-backward
 
 # ========================================
 # COMPLETION SYSTEM
