@@ -49,11 +49,6 @@ zinit wait lucid for \
 # ZSH OPTIONS & BEHAVIOR
 # ========================================
 
-# Disable history
-unset HISTFILE
-export HISTSIZE=0
-export SAVEHIST=0  
-
 setopt AUTO_CD
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
