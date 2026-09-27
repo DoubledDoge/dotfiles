@@ -10,7 +10,6 @@ mouse_events = ["click", "scroll"]
 
 [preview]
 wrap = "yes"
-image_delay = 3000
 image_filter = "lanczos3"
 
 [opener]
