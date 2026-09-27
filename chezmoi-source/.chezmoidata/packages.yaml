@@ -39,6 +39,7 @@ packages:
     - openssh
     - pkgconf
     - openssl
+    - atuin
   fedora:
     - "@development-tools"
     - kitty
@@ -49,6 +50,7 @@ packages:
     - openssh-clients
     - pkgconf
     - openssl-devel
+    - atuin
   cargo:
     - crate: eza
       bin: eza
@@ -74,8 +76,6 @@ packages:
       bin: cargo-cache
     - crate: resvg
       bin: resvg
-    - crate: atuin
-      bin: atuin
 
 tools:
   nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
