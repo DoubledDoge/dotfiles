@@ -39,7 +39,6 @@ packages:
     - openssh
     - pkgconf
     - openssl
-    - atuin
   fedora:
     - "@development-tools"
     - kitty
@@ -50,7 +49,6 @@ packages:
     - openssh-clients
     - pkgconf
     - openssl-devel
-    - atuin
   cargo:
     - crate: eza
       bin: eza

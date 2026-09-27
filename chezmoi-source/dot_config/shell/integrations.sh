@@ -18,10 +18,6 @@ if command -v thefuck >/dev/null 2>&1 && thefuck --version >/dev/null 2>&1; then
     eval "$(thefuck --alias fk)"
 fi
 
-if command -v atuin >/dev/null 2>&1; then
-    eval "$(atuin init "$__DOTFILES_SHELL_NAME")"
-fi
-
 # ========================================
 # PROMPT INITIALIZATION
 # ========================================
