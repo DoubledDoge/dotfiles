@@ -5,6 +5,7 @@ cleanup = true
 
 assume_yes = true
 
+no_self_update = true
 
 [linux]
 arch_package_manager = "paru"
