@@ -1,0 +1,41 @@
+[delta]
+	navigate = true
+	dark = true
+	side-by-side = true
+	line-numbers = true
+	features = rose-pine
+
+[color]
+	ui = 1
+
+[delta "rose-pine"]
+    blame-palette = "#191724 #26233a #524f67 #908caa #e0def4"
+    commit-decoration-style = "box #908caa"
+    dark = true
+    file-decoration-style = "#908caa"
+    file-style = "#e0def4"
+    hunk-header-decoration-style = "box #908caa"
+    hunk-header-style = "#e0def4"
+    minus-empty-line-marker-style = "#191724"
+    minus-line-format = "- {eb3}"
+    minus-style = "syntax #2a202b"
+    minus-style = "syntax #30212f"
+    plus-empty-line-marker-style = "#191724"
+    plus-line-format = "+ {eb3}"
+    plus-style = "syntax #202b35"
+    syntax-theme = "rose-pine"
+
+[color "decorate"]
+	HEAD = red
+	branch = blue
+	tag = yellow
+	remoteBranch = magenta
+
+[color "branch"]
+	current = magenta
+	local = default
+	remote = yellow
+	upstream = green
+	plain = blue
+
+    

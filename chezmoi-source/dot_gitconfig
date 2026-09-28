@@ -1,15 +1,11 @@
-[user]
-	name = DoubledDoge
-	email = dbritz22@proton.me
-	signingkey = {REPLACE}
-
 [core]
 	compression = 9
 	whitespace = blank-at-eol,blank-at-eof,space-before-tab
 	preloadindex = true
 	pager = delta
-	excludesfile = ~/.gitignore_global
-	attributesFile = ~/.gitattributes_global
+	excludesfile = ~/.config/git/.gitignore_global
+	attributesFile = ~/.config/git/.gitattributes_global
+	editor = micro
 
 [advice]
 	addEmptyPathspec = false
@@ -27,6 +23,9 @@
 	prune = true
 
 [diff]
+	algorithm = histogram
+	colorMoved = default
+	mnemonicPrefix = false
 	context = 3
 	renames = true
 	interHunkContext = 10
@@ -58,21 +57,11 @@
 	abbrevCommit = true
 	graphColors = blue,yellow,cyan,magenta,green,red
 
-[color "decorate"]
-	HEAD = red
-	branch = blue
-	tag = yellow
-	remoteBranch = magenta
-
-[color "branch"]
-	current = magenta
-	local = default
-	remote = yellow
-	upstream = green
-	plain = blue
-
 [branch]
 	sort = -committerdate
+
+[checkout]
+	defaultRemote = origin
 
 [tag]
 	sort = -taggerdate
@@ -81,40 +70,19 @@
 	diffFilter = delta --color-only
 	singlekey = true
 
-[delta]
-	navigate = true
-	dark = true
-	side-by-side = true
-	line-numbers = true
+[include]
+	path = ~/.config/git/personal.gitconfig
+	path = ~/.config/git/theme.gitconfig
+	path = ~/.config/git/gpg.gitconfig
+	path = ~/.config/git/github.gitconfig
+	path = ~/.config/git/alias.gitconfig
 
 [merge]
 	conflictStyle = zdiff3
 
 [commit]
-	template = ~/.gitmessage
-	gpgSign = true
-
-[credential "https://github.com"]
-	helper = 
-	helper = !gh auth git-credential
-
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !gh auth git-credential
-
-[alias]
-	cm = commit
-	co = checkout
-	ac = !git add -A && git commit
-	st = status -sb
-	tags = tag -l
-	branches = branch -a
-	cleanup = !git branch --merged | grep -v '*' | xargs git branch -d
-	remotes = remote -v
-	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+	template = ~/.config/git/.gitmessage
+	verbose = false
 
 [help]
 	autocorrect = 15
-	
-[color]
-	ui = 1

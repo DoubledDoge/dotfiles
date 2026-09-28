@@ -1,0 +1,11 @@
+[user]
+    signingkey = {REPLACE}
+
+[gpg]
+	format = openpgp
+
+[commit]
+    gpgsign = true
+
+[tag]
+    gpgsign = true
