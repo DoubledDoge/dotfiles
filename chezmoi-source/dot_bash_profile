@@ -1,20 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ -f ~/.bashrc && $- == *i* ]]; then
-    source ~/.bashrc
-fi
+[ -r "$HOME/.config/shell/profile.sh" ] && . "$HOME/.config/shell/profile.sh"
 
-# ========================================
-# SHARED LOGIN-SHELL ENVIRONMENT
-# ========================================
-
-if [ -f "$HOME/.config/shell/login.sh" ]; then
-    # shellcheck disable=SC1091
-    source "$HOME/.config/shell/login.sh"
-fi
-
-# ========================================
-# CONDITIONAL LOADING
-# ========================================
-
-[ -f "$HOME/.config/bash/bash_profile.local" ] && source "$HOME/.config/bash/bash_profile.local"
+[ -r "$HOME/.config/bash/bash_profile.local" ] && . "$HOME/.config/bash/bash_profile.local"
