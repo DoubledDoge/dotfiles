@@ -51,4 +51,4 @@ export FZF_DEFAULT_OPTS="--height 60% --layout=reverse --border --inline-info --
 
 export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share" 
 
-# shellcheck shell=sh
+# shellcheck shell=bash

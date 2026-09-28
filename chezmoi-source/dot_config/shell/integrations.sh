@@ -30,4 +30,4 @@ if command -v oh-my-posh >/dev/null 2>&1 && [ -f "$HOME/.config/ohmyposh/rosepin
     eval "$(oh-my-posh init "$__DOTFILES_SHELL_NAME" --config "$HOME/.config/ohmyposh/rosepine.omp.toml")"
 fi
 
-# shellcheck shell=sh
+# shellcheck shell=bash

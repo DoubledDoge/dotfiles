@@ -82,4 +82,4 @@ if [ -d "$HOME/.rbenv" ]; then
     }
 fi
 
-# shellcheck shell=sh
+# shellcheck shell=bash
