@@ -81,3 +81,5 @@ if command -v ssh-agent >/dev/null 2>&1; then
         fi
     fi
 fi
+
+# shellcheck shell=sh

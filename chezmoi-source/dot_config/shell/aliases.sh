@@ -53,3 +53,5 @@ alias j='jobs -l'
 alias ports='netstat -tulanp'
 alias mv='mv -i'
 alias help='help 2>&1 | bat --language=help --style=plain 2>/dev/null || help'
+
+# shellcheck shell=sh

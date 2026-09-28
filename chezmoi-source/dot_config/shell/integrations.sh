@@ -29,3 +29,5 @@ _update_bg_jobs() {
 if command -v oh-my-posh >/dev/null 2>&1 && [ -f "$HOME/.config/ohmyposh/rosepine.omp.toml" ]; then
     eval "$(oh-my-posh init "$__DOTFILES_SHELL_NAME" --config "$HOME/.config/ohmyposh/rosepine.omp.toml")"
 fi
+
+# shellcheck shell=sh

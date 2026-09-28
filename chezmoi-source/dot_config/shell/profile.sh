@@ -23,3 +23,5 @@ if [ -n "${BASH_VERSION-}" ]; then
             ;;
     esac
 fi
+
+# shellcheck shell=sh

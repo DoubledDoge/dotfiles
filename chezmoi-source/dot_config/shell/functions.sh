@@ -81,3 +81,5 @@ if [ -d "$HOME/.rbenv" ]; then
         rbenv "$@"
     }
 fi
+
+# shellcheck shell=sh
