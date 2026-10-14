@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # ========================================
 # SHARED FUNCTIONS
 # ========================================
@@ -66,7 +68,6 @@ if [ -d "$HOME/.nvm" ]; then
     nvm() {
         unset -f nvm
         export NVM_DIR="$HOME/.nvm"
-        # shellcheck disable=SC1091
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         [ -s "$NVM_DIR/bash_completion" ] && [ -n "$BASH_VERSION" ] && \. "$NVM_DIR/bash_completion"
         nvm "$@"
@@ -81,5 +82,3 @@ if [ -d "$HOME/.rbenv" ]; then
         rbenv "$@"
     }
 fi
-
-# shellcheck shell=bash

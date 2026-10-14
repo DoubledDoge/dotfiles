@@ -1,3 +1,5 @@
+#!/bin/sh
+
 [ -r "$HOME/.config/shell/login.sh" ] && . "$HOME/.config/shell/login.sh"
 
 if [ -d "$HOME/.local/bin" ]; then
@@ -11,7 +13,6 @@ fi
 export PATH
 
 if [ -f "$HOME/.cargo/env" ]; then
-    # shellcheck disable=SC1091
     . "$HOME/.cargo/env"
 fi
 
@@ -23,5 +24,3 @@ if [ -n "${BASH_VERSION-}" ]; then
             ;;
     esac
 fi
-
-# shellcheck shell=bash

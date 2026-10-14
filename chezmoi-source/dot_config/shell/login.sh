@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # ========================================
 # XDG BASE DIRECTORY SPECIFICATION
 # ========================================
@@ -71,16 +73,12 @@ if command -v ssh-agent >/dev/null 2>&1; then
         mkdir -p "$(dirname "$SSH_ENV")"
 
         if [ -f "$SSH_ENV" ]; then
-            # shellcheck disable=SC1090
             . "$SSH_ENV" >/dev/null
         fi
 
         if ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
             (umask 077; ssh-agent -s > "$SSH_ENV")
-            # shellcheck disable=SC1090
             . "$SSH_ENV" >/dev/null
         fi
     fi
 fi
-
-# shellcheck shell=bash
