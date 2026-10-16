@@ -15,7 +15,7 @@ curl -fsSL https://raw.githubusercontent.com/doubleddoge/dotfiles/main/install.s
 
 | Package     | What it configures                                               |
 |-------------|--------------------------------------------------------------------|
-| `git`       | `.gitconfig`, global gitignore, commit message template          |
+| `git`       | `~/.config/git/config`, global gitignore, commit message template |
 | `editorconfig` | Universal indent/whitespace rules for any editor              |
 | `shell-common` | Env vars, aliases, and functions shared by bash and zsh, plus login-shell env setup |
 | `bash` / `zsh` | Shell-specific config: history, completion, keybindings, plugin managers |
@@ -35,7 +35,7 @@ dotfiles/
     ├── .chezmoiscripts/                 # provisioning, run once per machine
     ├── dot_config/
     │   ├── git/, kitty/, ohmyposh/, fastfetch/, fzf-git/, zsh/, shell/
-    └── dot_bashrc, dot_profile, dot_gitconfig, ...
+    └── dot_bashrc, dot_profile, ...
 ```
 
 ## Manual re-apply

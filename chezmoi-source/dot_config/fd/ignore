@@ -1,0 +1,14 @@
+.git/
+.git-crypt/
+
+# Rust
+Cargo.lock
+target/
+
+# JavaScript
+node_modules/
+dist/
+
+# CSharp
+bin/
+obj/

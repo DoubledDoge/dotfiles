@@ -74,6 +74,8 @@ packages:
       bin: cargo-cache
     - crate: resvg
       bin: resvg
+    - crate: tokei
+      bin: tokei
 
 tools:
   nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"

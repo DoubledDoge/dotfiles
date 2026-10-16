@@ -1,21 +1,19 @@
 [alias]
-	cm = commit
-	co = checkout
 	ac = !git add -A && git commit
 	st = status -sb
-	sta = status
 	pr = pull --rebase
 	rh = reset HEAD
 	tl = tag -l
-	br = branch
 	bra = branch -a
 	cleanup = !git branch --merged | grep -v '*' | xargs git branch -d
 	remotes = remote -v
-	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
+	lg = log --all --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
 	conf = config --global
 	cge = config --global --edit
 	aa = add -A
+	ap = add -p
 	cdf = clean -df
+	ds = diff --staged
 	amend = commit -a --amend --no-edit
 	ciam = commit -a --amend --no-edit
 	ciamc = commit -a --amend --no-edit --no-verify

@@ -1,0 +1,14 @@
+[url "https://github.com/"]
+    insteadOf = gh:
+
+[url "git@github.com:"]
+    insteadOf = ghssh:
+
+[url "https://gitlab.com/"]
+    insteadOf = gl:
+
+[url "https://github.com/DoubledDoge/"]
+    insteadOf = dd:
+
+[url "git@github.com:DoubledDoge/"]
+    insteadOf = ddssh:

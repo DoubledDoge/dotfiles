@@ -3,8 +3,8 @@
 	whitespace = blank-at-eol,blank-at-eof,space-before-tab
 	preloadindex = true
 	pager = delta
-	excludesfile = ~/.config/git/.gitignore_global
-	attributesFile = ~/.config/git/.gitattributes_global
+	excludesfile = ~/.config/git/ignore
+	attributesFile = ~/.config/git/attributes
 	editor = micro
 
 [advice]
@@ -17,6 +17,7 @@
 
 [status]
 	branch = true
+	short = true
 	showStash = true
 
 [fetch]
@@ -27,16 +28,8 @@
 	colorMoved = default
 	mnemonicPrefix = false
 	context = 3
-	renames = true
+	renames = copies
 	interHunkContext = 10
-
-[color "diff"]
-	meta = black bold
-	frag = magenta
-	context = white
-	whitespace = yellow reverse
-	old = red
-	new = green
 
 [push]
 	autoSetupRemote = true
@@ -44,6 +37,7 @@
 	followTags = true
 
 [pull]
+	default = current
 	rebase = true
 
 [rebase]
@@ -76,12 +70,13 @@
 	path = ~/.config/git/gpg.gitconfig
 	path = ~/.config/git/github.gitconfig
 	path = ~/.config/git/alias.gitconfig
+	path = ~/.config/git/url.gitconfig
 
 [merge]
 	conflictStyle = zdiff3
 
 [commit]
-	template = ~/.config/git/.gitmessage
+	template = ~/.config/git/message
 	verbose = false
 
 [help]

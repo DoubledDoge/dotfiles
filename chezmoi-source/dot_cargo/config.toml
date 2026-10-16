@@ -1,0 +1,9 @@
+[cargo-new]
+vcs = "none"
+
+[term]
+verbose = false
+progress.when = "never"
+
+[build]
+rustflags = ["-C", "target-cpu=native"]

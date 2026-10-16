@@ -1,0 +1,37 @@
+sort = "lines"
+
+types = [
+    "Batch",
+    "Bash", 
+    "C",
+    "CHeader",
+    "Cpp", 
+    "CSharp", 
+    "Css", 
+    "Dockerfile",
+    "Go", 
+    "Html", 
+    "Java", 
+    "JavaScript", 
+    "Json", 
+    "Kotlin", 
+    "Lua", 
+    "Markdown",
+    "Makefile",
+    "Odin", 
+    "Php", 
+    "PowerShell",
+    "Python",
+    "Rust",
+    "Sql", 
+    "Svelte", 
+    "Text", 
+    "Toml",
+    "TypeScript",
+    "Xaml", 
+    "Xml", 
+    "Yaml", 
+    "Zsh"
+]
+
+treat_doc_strings_as_comments = true
