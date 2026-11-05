@@ -28,8 +28,6 @@ export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc.py"
 export PYTHONHISTFILE="$XDG_STATE_HOME/python/history"
 export PYTHON_HISTORY=/dev/null 
 
-export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
-
 export LESSHISTFILE="$XDG_STATE_HOME/less/history"
 
 export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
