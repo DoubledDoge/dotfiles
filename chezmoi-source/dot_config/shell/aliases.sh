@@ -60,3 +60,6 @@ alias j='jobs -l'
 alias ports='netstat -tulanp'
 alias mv='mv -i'
 alias help='help 2>&1 | bat --language=help --style=plain 2>/dev/null || help'
+
+alias yta="yt-dlp --config-locations $XDG_CONFIG_HOME/yt-dlp/audio.conf"
+alias ytv="yt-dlp --config-locations $XDG_CONFIG_HOME/yt-dlp/video.conf"

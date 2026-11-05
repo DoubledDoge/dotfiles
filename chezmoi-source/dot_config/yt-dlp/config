@@ -1,0 +1,6 @@
+--embed-metadata
+--embed-thumbnail
+
+--restrict-filenames
+--download-archive ~/.config/yt-dlp/archive.txt 
+-o "%(title)s.%(ext)s"

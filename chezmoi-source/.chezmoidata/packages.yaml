@@ -16,6 +16,7 @@ packages:
     - 7zip
     - ffmpeg
     - tealdeer
+    - yt-dlp
   debian:
     - build-essential
     - kitty
