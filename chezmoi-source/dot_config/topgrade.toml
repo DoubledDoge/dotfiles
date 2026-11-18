@@ -1,4 +1,7 @@
 [misc]
+
+disable = ["github_cli_skills", "micro", "yazi"]
+
 pre_sudo = true
 
 cleanup = true
