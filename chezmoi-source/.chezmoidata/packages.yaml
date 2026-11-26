@@ -15,9 +15,7 @@ packages:
     - bash-completion
     - 7zip
     - ffmpeg
-    - tealdeer
     - yt-dlp
-    - wget2
   debian:
     - build-essential
     - bat
@@ -27,8 +25,10 @@ packages:
     - gnupg
     - openssh-client
     - locales
+    - tealdeer
     - libssl-dev
     - pkg-config
+    - wget2
   arch:
     - base-devel
     - bat
@@ -39,6 +39,7 @@ packages:
     - openssh
     - pkgconf
     - openssl
+    - tealdeer
   fedora:
     - "@development-tools"
     - bat
@@ -48,6 +49,7 @@ packages:
     - openssh-clients
     - pkgconf
     - openssl-devel
+    - wget2
   cargo:
     - crate: eza
       bin: eza
