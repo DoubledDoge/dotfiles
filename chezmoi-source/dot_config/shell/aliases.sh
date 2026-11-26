@@ -4,6 +4,13 @@
 # SHARED ALIASES
 # ========================================
 
+if command -v doas >/dev/null 2>&1; then
+    alias sudo='doas'
+    alias sudoedit='doas micro'
+else
+    alias sudo='sudo '
+fi
+
 alias ls='eza --color=always --git --icons=always --group-directories-first'
 alias ll='eza -l --color=always --git --icons=always --group-directories-first'
 alias la='eza -la --color=always --git --icons=always --group-directories-first'
