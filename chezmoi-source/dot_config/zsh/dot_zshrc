@@ -36,7 +36,6 @@ zinit wait lucid for \
 
 zinit wait lucid for \
     OMZP::git \
-    OMZP::sudo \
     OMZP::command-not-found \
     OMZP::dotnet \
     OMZP::cp \

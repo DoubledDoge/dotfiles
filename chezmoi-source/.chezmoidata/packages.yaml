@@ -76,6 +76,10 @@ packages:
     - crate: tokei
       bin: tokei
 
+binary_fixups:
+  - { src: /usr/bin/batcat, dst: bat }
+  - { src: /usr/bin/fdfind, dst: fd }
+
 tools:
   nerd_font_url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip"
   bat_extras_repo: "https://github.com/eth-p/bat-extras.git"

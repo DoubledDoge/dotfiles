@@ -13,11 +13,6 @@ if command -v direnv >/dev/null 2>&1; then
     eval "$(direnv hook "$__DOTFILES_SHELL_NAME")"
 fi
 
-if command -v thefuck >/dev/null 2>&1 && thefuck --version >/dev/null 2>&1; then
-    eval "$(thefuck --alias)"
-    eval "$(thefuck --alias fk)"
-fi
-
 # ========================================
 # PROMPT INITIALIZATION
 # ========================================
