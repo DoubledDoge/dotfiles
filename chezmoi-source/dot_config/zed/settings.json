@@ -1,0 +1,60 @@
+{
+  "proxy": "",
+  "collaboration_panel": {
+    "button": false
+  },
+  "cursor_animation": {
+    "enabled": true
+  },
+  "markdown_preview": {
+    "font_family": "Inter"
+  },
+  "disable_ai": true,
+  "ui_font_family": "Inter",
+  "session": {
+    "trust_all_worktrees": true
+  },
+  "terminal": {
+    "shell": "system",
+    "font_family": "Monaspace Neon NF",
+    "cursor_shape": "bar",
+    "blinking": "on",
+    "font_features": {"calt": true, "liga": true, "ss01": true, "ss02": true, "ss03": true, "ss04": true, "ss05": true, "ss06": true, "ss07": true, "ss08": true, "ss09": true, "ss10": true,}
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "sticky_scroll": {
+    "enabled": false
+  },
+  "mouse_wheel_zoom": true,
+  "cursor_blink": true,
+  "autosave": "on_focus_change",
+  "buffer_font_family": "Monaspace Neon NF",
+  "buffer_font_features": {"calt": true, "liga": true, "ss01": true, "ss02": true, "ss03": true, "ss04": true, "ss05": true, "ss06": true, "ss07": true, "ss08": true, "ss09": true, "ss10": true,},
+  "colorize_brackets": true,
+  "auto_indent_on_paste": true,
+  "linked_edits": true,
+  "use_on_type_format": true,
+  "ensure_final_newline_on_save": true,
+  "soft_wrap": "editor_width",
+  "agent_servers": {
+    "github-copilot-cli": {
+      "type": "registry"
+    }
+  },
+  "base_keymap": "VSCode",
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Material Icon Theme",
+    "dark": "Material Icon Theme"
+  },
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+  "theme": {
+    "mode": "dark",
+    "light": "Material Theme",
+    "dark": "Material Theme Darker High Contrast",
+  },
+}
