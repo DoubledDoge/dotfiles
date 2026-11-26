@@ -4,8 +4,6 @@ run-name: CI for ${{ github.event.pull_request.title || github.sha }}
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 1'
