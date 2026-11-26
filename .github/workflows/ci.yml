@@ -51,7 +51,7 @@ jobs:
           persist-credentials: false
 
       - name: Install chezmoi
-        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin -t "$CHEZMOI_VERSION"
+        run: sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin -t "$CHEZMOI_VERSION"
 
       - name: Shellcheck every script template
         run: |
@@ -101,7 +101,7 @@ jobs:
           persist-credentials: false
 
       - name: Install chezmoi
-        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin -t "$CHEZMOI_VERSION"
+        run: sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin -t "$CHEZMOI_VERSION"
 
       - name: Render OS packages script
         run: |
