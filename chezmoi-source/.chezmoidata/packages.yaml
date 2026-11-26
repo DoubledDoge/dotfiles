@@ -17,9 +17,9 @@ packages:
     - ffmpeg
     - tealdeer
     - yt-dlp
+    - wget2
   debian:
     - build-essential
-    - kitty
     - bat
     - fd-find
     - less
@@ -31,7 +31,6 @@ packages:
     - pkg-config
   arch:
     - base-devel
-    - kitty
     - bat
     - fd
     - less
@@ -42,7 +41,6 @@ packages:
     - openssl
   fedora:
     - "@development-tools"
-    - kitty
     - bat
     - fd-find
     - less
