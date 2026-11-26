@@ -18,7 +18,6 @@ permissions:
   contents: read
 
 env:
-  CHEZMOI_VERSION: 2.72.2
   SHELLCHECK_OPTS: -e SC1090 -e SC1091
 
 jobs:
@@ -51,7 +50,7 @@ jobs:
           persist-credentials: false
 
       - name: Install chezmoi
-        run: sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin -t "$CHEZMOI_VERSION"
+        run: sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin
 
       - name: Shellcheck every script template
         run: |
@@ -101,7 +100,7 @@ jobs:
           persist-credentials: false
 
       - name: Install chezmoi
-        run: sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin -t "$CHEZMOI_VERSION"
+        run: sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin
 
       - name: Render OS packages script
         run: |
