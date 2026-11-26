@@ -1,43 +1,57 @@
 name: Dotfiles CI
+run-name: CI for ${{ github.event.pull_request.title || github.sha }}
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  CHEZMOI_VERSION: v2.72.2
+  SHELLCHECK_OPTS: -e SC1090 -e SC1091
 
 jobs:
   shellcheck:
     name: ShellCheck
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
         with:
           scandir: '.'
           additional_files: install.sh
-          ignore_paths: chezmoi-source/dot_config/zsh chezmoi-source/dot_config/fzf-git chezmoi-source/.chezmoiscripts
+          ignore_paths: chezmoi-source/dot_config/zsh chezmoi-source/dot_config/fzf-git chezmoi-source/.chezmoiscripts chezmoi-source/.chezmoitemplates
           severity: warning
-        env:
-          SHELLCHECK_OPTS: -e SC1090 -e SC1091
 
   chezmoi-templates:
     name: Validate templates
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install chezmoi
-        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
-        
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin "$CHEZMOI_VERSION"
 
       - name: Shellcheck every script template
         run: |
@@ -47,7 +61,7 @@ jobs:
             echo "Rendering $f"
             chezmoi --source . execute-template -f "$f" > "/tmp/rendered/$name"
           done
-          shellcheck -e SC1090 -e SC1091 /tmp/rendered/*
+          shellcheck -S warning /tmp/rendered/*
 
       - name: Validate .chezmoiexternal.toml
         run: |
@@ -57,4 +71,43 @@ jobs:
       - name: Dry-run apply
         run: |
           mkdir -p /tmp/chezmoi-ci-home
-          chezmoi --source . --destination /tmp/chezmoi-ci-home apply --dry-run
+          chezmoi --source . --destination /tmp/chezmoi-ci-home apply --dry-run --verbose
+
+  scripts-smoke:
+    name: Run OS packages script (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Debian
+            image: debian:stable
+            prereqs: apt-get update && apt-get install -y ca-certificates curl git
+          - name: Arch
+            image: archlinux:latest
+            prereqs: pacman -Syu --noconfirm curl git
+          - name: Fedora
+            image: fedora:latest
+            prereqs: dnf install -y git
+    steps:
+      - name: Install prerequisites
+        run: ${{ matrix.prereqs }}
+
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install chezmoi
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin "$CHEZMOI_VERSION"
+
+      - name: Render OS packages script
+        run: |
+          chezmoi --source . execute-template \
+            --override-data '{"archInstallParu": false}' \
+            -f chezmoi-source/.chezmoiscripts/run_onchange_before_00-os-packages.sh.tmpl > /tmp/os-packages.sh
+
+      - name: Run OS packages script
+        run: bash /tmp/os-packages.sh
